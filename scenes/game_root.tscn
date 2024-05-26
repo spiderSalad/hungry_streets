@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://c3x4t5crp1tsp"]
+
+[ext_resource type="PackedScene" uid="uid://c01wlc4xbxm2j" path="res://scenes/ui_char_create.tscn" id="2_yvrpu"]
+
+[node name="game_root" type="Node"]
+
+[node name="Control" parent="." instance=ExtResource("2_yvrpu")]

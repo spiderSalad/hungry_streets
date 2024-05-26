@@ -1,0 +1,119 @@
+[gd_scene load_steps=7 format=3 uid="uid://fjrbxix8esi5"]
+
+[ext_resource type="Script" path="res://scripts/ui_dev_mode/uiDevPanel.cs" id="1_m6xt2"]
+[ext_resource type="Script" path="res://scripts/ui_dev_mode/optBtnChooseRoller.cs" id="2_be833"]
+[ext_resource type="Script" path="res://scripts/global/LineEditFormInput.cs" id="3_dep6k"]
+[ext_resource type="Script" path="res://scripts/ui_dev_mode/btnDiceTest1.cs" id="4_ltprm"]
+[ext_resource type="Script" path="res://scripts/ui_dev_mode/lblRollResults1.cs" id="4_x6qmf"]
+[ext_resource type="Script" path="res://scripts/global/RichTextReadout.cs" id="5_ni8rx"]
+
+[node name="uiDevPanel" type="Control" node_paths=PackedStringArray("_activeHungerOverride", "_reactingHungerOverride")]
+layout_mode = 3
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+grow_horizontal = 0
+script = ExtResource("1_m6xt2")
+_activeHungerOverride = NodePath("margconDpuiMain/vboxContentMain/hboxActorHunger/spinboxActorHunger")
+_reactingHungerOverride = NodePath("margconDpuiMain/vboxContentMain/hboxReactorHunger/spinboxReactorHunger")
+
+[node name="margconDpuiMain" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -215.0
+offset_bottom = 150.0
+grow_horizontal = 0
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 15
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 15
+
+[node name="vboxContentMain" type="VBoxContainer" parent="margconDpuiMain"]
+layout_mode = 2
+alignment = 1
+
+[node name="lblActiveRoller" type="Label" parent="margconDpuiMain/vboxContentMain"]
+layout_mode = 2
+text = "Active Party:
+"
+
+[node name="optBtnActiveRoller" type="OptionButton" parent="margconDpuiMain/vboxContentMain"]
+layout_mode = 2
+script = ExtResource("2_be833")
+
+[node name="lblDicePool1" type="Label" parent="margconDpuiMain/vboxContentMain"]
+layout_mode = 2
+text = "Dice Pool #1 (Active Pool)
+"
+
+[node name="inputDicePool1" type="LineEdit" parent="margconDpuiMain/vboxContentMain"]
+layout_mode = 2
+placeholder_text = "Dice pool"
+max_length = 50
+script = ExtResource("3_dep6k")
+NodeGroups = Array[int]([0])
+UiCommandKey = 2
+
+[node name="hboxActorHunger" type="HBoxContainer" parent="margconDpuiMain/vboxContentMain"]
+layout_mode = 2
+
+[node name="chkUseActorHunger" type="CheckBox" parent="margconDpuiMain/vboxContentMain/hboxActorHunger"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+disabled = true
+text = "Use actor Hunger"
+
+[node name="spinboxActorHunger" type="SpinBox" parent="margconDpuiMain/vboxContentMain/hboxActorHunger"]
+layout_mode = 2
+max_value = 5.0
+value = 1.0
+
+[node name="lblRollResults1" type="Label" parent="margconDpuiMain/vboxContentMain"]
+layout_mode = 2
+text = "<results>
+"
+script = ExtResource("4_x6qmf")
+
+[node name="lblRtRollResults1" type="RichTextLabel" parent="margconDpuiMain/vboxContentMain"]
+custom_minimum_size = Vector2(200, 60)
+layout_mode = 2
+theme_override_font_sizes/normal_font_size = 18
+theme_override_font_sizes/bold_font_size = 18
+theme_override_font_sizes/italics_font_size = 18
+theme_override_font_sizes/bold_italics_font_size = 18
+theme_override_font_sizes/mono_font_size = 18
+bbcode_enabled = true
+text = "[color=#f00]<res[/color]ults>"
+script = ExtResource("5_ni8rx")
+NodeGroups = Array[int]([1, 6])
+
+[node name="lblReactingRoller" type="Label" parent="margconDpuiMain/vboxContentMain"]
+layout_mode = 2
+text = "Reacting Party:
+"
+
+[node name="lblDicePool2" type="Label" parent="margconDpuiMain/vboxContentMain"]
+layout_mode = 2
+text = "Dice Pool #2 (Reacting Pool)
+"
+
+[node name="hboxReactorHunger" type="HBoxContainer" parent="margconDpuiMain/vboxContentMain"]
+layout_mode = 2
+
+[node name="chkUseReactorHunger" type="CheckBox" parent="margconDpuiMain/vboxContentMain/hboxReactorHunger"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+disabled = true
+text = "Use reactor Hunger"
+
+[node name="spinboxReactorHunger" type="SpinBox" parent="margconDpuiMain/vboxContentMain/hboxReactorHunger"]
+layout_mode = 2
+max_value = 5.0
+value = 1.0
+
+[node name="btnDiceTest1" type="Button" parent="margconDpuiMain/vboxContentMain"]
+layout_mode = 2
+text = "Roll Dice"
+script = ExtResource("4_ltprm")

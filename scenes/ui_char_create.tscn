@@ -1,0 +1,257 @@
+[gd_scene load_steps=15 format=3 uid="uid://c01wlc4xbxm2j"]
+
+[ext_resource type="Script" path="res://scripts/ui_char_creation/uiCharCreateRoot.cs" id="1_u7md7"]
+[ext_resource type="Script" path="res://scripts/ui_char_creation/gridCharAttrs.cs" id="2_6o1rg"]
+[ext_resource type="Texture2D" uid="uid://covfekp6yfat3" path="res://images/backgrounds/bg_haven.jpg" id="2_y3esi"]
+[ext_resource type="Script" path="res://scripts/ui_char_creation/optBtnCharPronouns.cs" id="3_g2ecq"]
+[ext_resource type="Script" path="res://scripts/global/LineEditFormInput.cs" id="3_sdii1"]
+[ext_resource type="Texture2D" uid="uid://dgryain8aok81" path="res://images/gui/dots_red_three.png" id="3_t0ahf"]
+[ext_resource type="Script" path="res://scripts/ui_char_creation/itemListCharBackgrounds.cs" id="3_tnff7"]
+[ext_resource type="Script" path="res://scripts/ui_char_creation/lblBackgroundInfo.cs" id="4_7fv07"]
+[ext_resource type="Script" path="res://scripts/ui_char_creation/gridCharSkills.cs" id="7_lon5k"]
+[ext_resource type="Script" path="res://scripts/ui_char_creation/lblCharSummary.cs" id="9_ba5is"]
+[ext_resource type="Script" path="res://scripts/ui_char_creation/btnCcuiFinishExit.cs" id="10_u7pyb"]
+
+[sub_resource type="Gradient" id="Gradient_bbhbe"]
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_tcmn3"]
+gradient = SubResource("Gradient_bbhbe")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_qsus5"]
+texture = SubResource("GradientTexture1D_tcmn3")
+
+[node name="uiCharCreateRoot" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("1_u7md7")
+
+[node name="panelcontCcuiMain" type="PanelContainer" parent="."]
+custom_minimum_size = Vector2(1280, 720)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -640.0
+offset_top = -360.0
+offset_right = 640.0
+offset_bottom = 360.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_qsus5")
+
+[node name="txrctCcuiBackground" type="TextureRect" parent="panelcontCcuiMain"]
+layout_mode = 2
+texture = ExtResource("2_y3esi")
+expand_mode = 3
+
+[node name="vboxContentOuter_L1" type="VBoxContainer" parent="panelcontCcuiMain"]
+layout_mode = 2
+
+[node name="lblCcuiTitle" type="Label" parent="panelcontCcuiMain/vboxContentOuter_L1"]
+layout_mode = 2
+text = "character creation"
+horizontal_alignment = 1
+uppercase = true
+
+[node name="tabcontCcuiMain" type="TabContainer" parent="panelcontCcuiMain/vboxContentOuter_L1"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Human Abilities" type="MarginContainer" parent="panelcontCcuiMain/vboxContentOuter_L1/tabcontCcuiMain"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="vboxCcuiContent_1" type="VBoxContainer" parent="panelcontCcuiMain/vboxContentOuter_L1/tabcontCcuiMain/Human Abilities"]
+layout_mode = 2
+
+[node name="hboxCcuiPage1Split" type="HBoxContainer" parent="panelcontCcuiMain/vboxContentOuter_L1/tabcontCcuiMain/Human Abilities/vboxCcuiContent_1"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="scrollContainerCharSettings" type="ScrollContainer" parent="panelcontCcuiMain/vboxContentOuter_L1/tabcontCcuiMain/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 2.5
+horizontal_scroll_mode = 0
+
+[node name="vboxCharSettings" type="VBoxContainer" parent="panelcontCcuiMain/vboxContentOuter_L1/tabcontCcuiMain/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 15
+
+[node name="lblHeaderIdentity" type="Label" parent="panelcontCcuiMain/vboxContentOuter_L1/tabcontCcuiMain/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings"]
+layout_mode = 2
+text = "Identity"
+
+[node name="hboxCharIdentity" type="HBoxContainer" parent="panelcontCcuiMain/vboxContentOuter_L1/tabcontCcuiMain/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings"]
+layout_mode = 2
+
+[node name="inputCharName" type="LineEdit" parent="panelcontCcuiMain/vboxContentOuter_L1/tabcontCcuiMain/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings/hboxCharIdentity"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.5
+placeholder_text = "Enter your name..."
+script = ExtResource("3_sdii1")
+NodeGroups = Array[int]([2])
+UiCommandKey = 3
+
+[node name="inputCharNickname" type="LineEdit" parent="panelcontCcuiMain/vboxContentOuter_L1/tabcontCcuiMain/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings/hboxCharIdentity"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.5
+placeholder_text = "Nickname or epithet..."
+
+[node name="optBtnCharPronouns" type="OptionButton" parent="panelcontCcuiMain/vboxContentOuter_L1/tabcontCcuiMain/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings/hboxCharIdentity"]
+layout_mode = 2
+size_flags_horizontal = 3
+item_count = 4
+selected = 0
+popup/item_0/text = "Gender..."
+popup/item_0/id = 0
+popup/item_0/disabled = true
+popup/item_1/text = "She/Her"
+popup/item_1/id = 1
+popup/item_2/text = "He/Him"
+popup/item_2/id = 2
+popup/item_3/text = "They/Them"
+popup/item_3/id = 3
+script = ExtResource("3_g2ecq")
+
+[node name="lblHeaderBackground" type="Label" parent="panelcontCcuiMain/vboxContentOuter_L1/tabcontCcuiMain/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings"]
+layout_mode = 2
+text = "Background"
+
+[node name="hboxCharBackgrounds" type="HBoxContainer" parent="panelcontCcuiMain/vboxContentOuter_L1/tabcontCcuiMain/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings"]
+custom_minimum_size = Vector2(100, 100)
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="itemListCharBackgrounds" type="ItemList" parent="panelcontCcuiMain/vboxContentOuter_L1/tabcontCcuiMain/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings/hboxCharBackgrounds"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 5
+auto_height = true
+item_count = 5
+max_columns = 2
+same_column_width = true
+fixed_column_width = 150
+item_0/text = "Bartender"
+item_1/text = "Influencer"
+item_2/text = "Med student"
+item_3/text = "Star athlete"
+item_4/text = "Veteran"
+script = ExtResource("3_tnff7")
+
+[node name="lblBackgroundInfo" type="RichTextLabel" parent="panelcontCcuiMain/vboxContentOuter_L1/tabcontCcuiMain/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings/hboxCharBackgrounds"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/text_highlight_h_padding = 10
+theme_override_constants/text_highlight_v_padding = 10
+text = "Choose your mortal background..."
+fit_content = true
+drag_and_drop_selection_enabled = false
+script = ExtResource("4_7fv07")
+
+[node name="hboxTESTSTAT" type="HBoxContainer" parent="panelcontCcuiMain/vboxContentOuter_L1/tabcontCcuiMain/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings"]
+layout_mode = 2
+tooltip_text = "hbox hereeeee"
+theme_override_constants/separation = 10
+
+[node name="Label" type="Label" parent="panelcontCcuiMain/vboxContentOuter_L1/tabcontCcuiMain/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings/hboxTESTSTAT"]
+layout_mode = 2
+tooltip_text = "Here's how best to cook and consume smegma:"
+theme_override_font_sizes/font_size = 16
+text = "Test Attribute"
+
+[node name="TextureRect" type="TextureRect" parent="panelcontCcuiMain/vboxContentOuter_L1/tabcontCcuiMain/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings/hboxTESTSTAT"]
+layout_mode = 2
+tooltip_text = "get rect"
+texture = ExtResource("3_t0ahf")
+expand_mode = 3
+
+[node name="lblHeaderAttrs" type="Label" parent="panelcontCcuiMain/vboxContentOuter_L1/tabcontCcuiMain/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings"]
+layout_mode = 2
+text = "Attributes"
+
+[node name="margContGridAttrs" type="MarginContainer" parent="panelcontCcuiMain/vboxContentOuter_L1/tabcontCcuiMain/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_right = 10
+
+[node name="gridCharAttrs" type="GridContainer" parent="panelcontCcuiMain/vboxContentOuter_L1/tabcontCcuiMain/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings/margContGridAttrs"]
+layout_mode = 2
+columns = 3
+script = ExtResource("2_6o1rg")
+NodeGroups = Array[int]([3])
+
+[node name="lblHeaderSkills" type="Label" parent="panelcontCcuiMain/vboxContentOuter_L1/tabcontCcuiMain/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings"]
+layout_mode = 2
+text = "Skills"
+
+[node name="margContGridSkills" type="MarginContainer" parent="panelcontCcuiMain/vboxContentOuter_L1/tabcontCcuiMain/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_right = 10
+
+[node name="gridCharSkills" type="GridContainer" parent="panelcontCcuiMain/vboxContentOuter_L1/tabcontCcuiMain/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings/margContGridSkills"]
+layout_mode = 2
+columns = 3
+script = ExtResource("7_lon5k")
+NodeGroups = Array[int]([3])
+
+[node name="ColorRect" type="ColorRect" parent="panelcontCcuiMain/vboxContentOuter_L1/tabcontCcuiMain/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings"]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+color = Color(1, 0.0392157, 0.0392157, 0.196078)
+
+[node name="VSeparator" type="VSeparator" parent="panelcontCcuiMain/vboxContentOuter_L1/tabcontCcuiMain/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split"]
+layout_mode = 2
+
+[node name="txrctCharPortrait" type="TextureRect" parent="panelcontCcuiMain/vboxContentOuter_L1/tabcontCcuiMain/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Vampiric Embrace" type="MarginContainer" parent="panelcontCcuiMain/vboxContentOuter_L1/tabcontCcuiMain"]
+visible = false
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="vboxCcuiContent_2" type="VBoxContainer" parent="panelcontCcuiMain/vboxContentOuter_L1/tabcontCcuiMain/Vampiric Embrace"]
+layout_mode = 2
+
+[node name="Finish and Start" type="MarginContainer" parent="panelcontCcuiMain/vboxContentOuter_L1/tabcontCcuiMain"]
+visible = false
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="vboxCcuiContent_3" type="VBoxContainer" parent="panelcontCcuiMain/vboxContentOuter_L1/tabcontCcuiMain/Finish and Start"]
+layout_mode = 2
+
+[node name="lblCharSummary" type="RichTextLabel" parent="panelcontCcuiMain/vboxContentOuter_L1/tabcontCcuiMain/Finish and Start/vboxCcuiContent_3"]
+layout_mode = 2
+fit_content = true
+script = ExtResource("9_ba5is")
+
+[node name="btnCcuiFinishExit" type="Button" parent="panelcontCcuiMain/vboxContentOuter_L1/tabcontCcuiMain/Finish and Start/vboxCcuiContent_3"]
+layout_mode = 2
+text = "Confirm & Exit"
+script = ExtResource("10_u7pyb")
