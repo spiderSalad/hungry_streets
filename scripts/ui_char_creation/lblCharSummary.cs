@@ -29,6 +29,13 @@ public partial class lblCharSummary : RichTextLabel
         charReadout += $"{pssv} name: {currentChar.Name}{lb}";
         charReadout += $"{pssv} occupation: {currentChar.Background.Name}{lb}";
         charReadout += $"etc, etc, todo...";
+        if (Cfg.DEV_MODE)
+        {
+            charReadout += $"\n\n{prns.ShesHesTheyve} been used in "
+                + $"{currentChar.numDiceTests} dice roll"
+                + (currentChar.numDiceTests != 1 ? "s": "");
+        }
+        charReadout += "\n";
         return charReadout;
     }
 }

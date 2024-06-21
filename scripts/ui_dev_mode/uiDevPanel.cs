@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using Godot;
 
 // Links to Utils functions?
@@ -12,14 +11,17 @@ public partial class uiDevPanel : Control
     private Godot.Collections.Array<Node> DpuiDisplays;
     private AudioHandler audioplayer;
 
-    private RichTextReadout _activeRollReadout;
-    private RichTextReadout _reactingRollReadout;
-
     [ExportGroup("DiceRollForm")]
-    [Export]
-    private SpinBox _activeHungerOverride;
-    [Export]
-    private SpinBox _reactingHungerOverride;
+    [Export] private OptionButton _actorSelection;
+    [Export] private LineEdit _dicePoolInput1;
+    [Export] private SpinBox _activeHungerOverride;
+    [Export] private SpinBox _reactingHungerOverride;
+    [Export] private SpinBox _testDiffInput;
+    [Export] private OptionButton _reactorSelection;
+    [Export] private LineEdit _dicePoolInput2;
+    [Export] private RichTextReadout _rollReadout;
+    [Export] private Godot.Button _btnWillRerollWin;
+    [Export] private Godot.Button _btnWillRerollRestrain;
     [ExportGroup("")]
 
     private string _dicePool1 = "";
@@ -30,6 +32,8 @@ public partial class uiDevPanel : Control
     public delegate void FormSelectionEventHandler(string source, long selectionIndex);
     [Signal]
     public delegate void FormSubmitEventHandler(Cfg.UI_KEY source);
+    [Signal]
+    public delegate void CharacterUpdateEventHandler(string opt, Variant val);
 
     public bool Initialized { get => _initialized; }
 
@@ -37,6 +41,9 @@ public partial class uiDevPanel : Control
     public V5Roll LastActiveRoll { get; private set; }
     private V5Entity _reactingRoller;
     public V5Roll LastReactingRoll { get; private set; }
+
+    public V5Contest LastTest { get; private set; }
+    public V5Contest LastContest { get; private set; }
 
     public uiDevPanel()
     {
@@ -82,27 +89,16 @@ public partial class uiDevPanel : Control
         }
 
         DpuiDisplays = GetTree().GetNodesInGroup($"{Cfg.GROUP_NAMES.DPUI_DISPLAYS}");
-        foreach (Node node in DpuiDisplays)
-        {
-            if (node is RichTextReadout rdt)
-            {
-                if (rdt.IsInGroup($"{Cfg.GROUP_NAMES.UI_ACTIVE_ROLL}"))
-                {
-                    _activeRollReadout = rdt;
-                }
-                else if (rdt.IsInGroup($"{Cfg.GROUP_NAMES.UI_REACTING_ROLL}"))
-                {
-                    _reactingRollReadout = rdt;
-                }
-                else
-                {
-                    GD.PrintErr($"{GetType()}: Unrecognized {typeof(RichTextReadout)} not in any expected groups.");
-                }
-            }
-        }
+        foreach (Node node in DpuiDisplays) { }
 
         MoveMeToEnd();
         audioplayer = GetNode<AudioHandler>("/root/AudioHandler");
+
+        var allEnts = V5Entity.GetAllEntities();
+        for (int i = 0; i < allEnts.Count; i++)
+        {
+            GD.Print($"{i:00}: {allEnts[i]}");
+        }
     }
 
     // Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -128,21 +124,50 @@ public partial class uiDevPanel : Control
         // GetTree().CallGroup(
         //     $"{Cfg.GROUP_NAMES.DPUI_DISPLAYS}", "ShowDiceTestResults", LastActiveRoll.ToString()
         // );
-        _activeRollReadout.UpdateText(LastActiveRoll.ToBBCodeString());
-        _activeRollReadout.TooltipText = LastActiveRoll.ToString();
-        if (LastReactingRoll is not default(V5Roll))
+        if (LastReactingRoll is not null && LastReactingRoll is not default(V5Roll))
         {
-            _reactingRollReadout.UpdateText(LastReactingRoll.ToBBCodeString());
-            _reactingRollReadout.TooltipText = LastReactingRoll.ToString();
+            _rollReadout.UpdateText($"{LastContest}");
+            _rollReadout.TooltipText =
+                $"{LastActiveRoll.UnfStr()}\n vs \n{LastReactingRoll.UnfStr()}";
+        }
+        else if (LastActiveRoll is not null && LastActiveRoll is not default(V5Roll))
+        {
+            _rollReadout.UpdateText($"{LastTest}");
+            _rollReadout.TooltipText = $"{LastActiveRoll.UnfStr()}";
+        }
+        else
+        {
+            throw new ArgumentNullException(
+                "Missing both active and reacting V5Roll objects! This shouldn't happen."
+            );
         }
 
+        if (LastActiveRoll.CanReroll)
+        {
+            _btnWillRerollWin.Disabled = !LastActiveRoll.PossibleWillRerollGain;
+            _btnWillRerollRestrain.Disabled = !LastActiveRoll.AvoidableMessyCrit;
+        }
+        else
+        {
+            _btnWillRerollWin.Disabled = true;
+            _btnWillRerollRestrain.Disabled = true;
+        }
+
+        if (LastActiveRoll.Actor is V5Entity ent1)
+        {
+            ent1.EmitSignal(SignalName.CharacterUpdate, "dicerolls", "actor");
+        }
+        if (LastReactingRoll is not default(V5Roll) && LastReactingRoll.Actor is V5Entity ent2)
+        {
+            ent2.EmitSignal(SignalName.CharacterUpdate, "dicerolls", "reactor");
+        }
     }
 
     public void DpuiTextInput(Cfg.UI_KEY key, string text)
     {
         switch (key)
         {
-            case Cfg.UI_KEY.DICE_TEST_1:
+            case Cfg.UI_KEY.DICE_TEST_1_TEST:
                 _dicePool1 = text;
                 GD.Print($"\n -- dice pool #1 set to {_dicePool1}");
                 break;
@@ -172,9 +197,21 @@ public partial class uiDevPanel : Control
     {
         switch (key)
         {
-            case Cfg.UI_KEY.DICE_TEST_1:
+            case Cfg.UI_KEY.DICE_TEST_1_TEST:
                 audioplayer.PlaySound(audioplayer.soundDiceMany);
-                RunDiceTestType1();
+                RunDiceTestType1x(false);
+                break;
+            case Cfg.UI_KEY.DICE_TEST_2_REROLL_WIN:
+                audioplayer.PlaySound(audioplayer.soundDiceFew);
+                RunDiceTestType2(true, false);
+                break;
+            case Cfg.UI_KEY.DICE_TEST_3_REROLL_RESTRAIN:
+                audioplayer.PlaySound(audioplayer.soundDiceFew);
+                RunDiceTestType2(false, true);
+                break;
+            case Cfg.UI_KEY.DICE_TEST_4_CONTEST:
+                audioplayer.PlaySound(audioplayer.soundDiceMany);
+                RunDiceTestType1x(true);
                 break;
             default:
                 GD.Print($"Unrecognized button press/form submit; source = {key}");
@@ -184,19 +221,64 @@ public partial class uiDevPanel : Control
 
     public void RunDiceTestType1()
     {
-        GD.Print($"\n--- Running dice test type 1, pool of {_dicePool1} ---\n");
-        bool parsed = Int32.TryParse(_dicePool1, out int totalDicePool);
+        string dicePoolStr = _dicePoolInput1.Text;
+        GD.Print($"\n--- Running dice test type 1, pool of {_dicePool1}/{dicePoolStr} ---\n");
+        bool parsed = Int32.TryParse(dicePoolStr, out int totalDicePool);
         if (!parsed)
         {
-            throw new FormatException($"Couldn't parse \"{_dicePool1}\" to an integer.");
+            throw new FormatException($"Couldn't parse \"{dicePoolStr}\" to an integer.");
         }
         GD.Print($"Evaluated dice pool: {totalDicePool}");
-        LastActiveRoll = new V5Roll(gm.playerchar, totalDicePool, true, defaultHunger: (int)_activeHungerOverride.Value);
+        LastActiveRoll = new V5Roll(
+            gm.playerchar, totalDicePool, true, hungerOverride: (int)_activeHungerOverride.Value
+        );
         UpdateAllFormDisplays();
     }
 
-    public void RunDiceTestType2()
+    public void RunDiceTestType1x(bool isContest)
     {
+        string dicePoolStr = _dicePoolInput1.Text;
+        V5Entity actor = V5Entity.GetEntityFromList(_actorSelection.Selected, gm.playerchar);
+        var totalDicePool = V5PoolParser.ParsePoolText(dicePoolStr, actor) ??
+            throw new FormatException($"Couldn't parse \"{dicePoolStr}\" to an integer.");
 
+        if (isContest)
+        {
+            string oppDicePoolStr = _dicePoolInput2.Text;
+            V5Entity reactor = V5Entity.GetEntityFromList(_reactorSelection.Selected);
+            GD.Print($" ----> Actor: {actor}, Reactor: {reactor}");
+            var enemyDicePool = V5PoolParser.ParsePoolText(oppDicePoolStr, reactor) ??
+                throw new FormatException("Couldn't parse \"{dicePoolStr}\" to an integer.");
+            GD.Print($"\n - Contest, pool of {totalDicePool} vs opp pool {enemyDicePool}\n");
+            LastContest = V5Contest.Contest(
+                totalDicePool, actor, true, enemyDicePool, reactor, true,
+                actorHungerOverride: (int) _activeHungerOverride.Value,
+                reactorHungerOverride: (int) _reactingHungerOverride.Value,
+                rng: gm.Rng
+            );
+            LastActiveRoll = LastContest.ActorRoll; LastReactingRoll = LastContest.ReactorRoll;
+        }
+        else
+        {
+            int difficulty = (int)_testDiffInput.Value;
+            GD.Print($" ----> Actor: {actor}");
+            GD.Print($"\n - Test, pool of {totalDicePool} vs flat diff {difficulty}\n");
+            LastTest = V5Contest.Test(
+                totalDicePool, actor, difficulty, true,
+                actorHungerOverride: (int)_activeHungerOverride.Value, // TODO: check checkbox here
+                rng: gm.Rng
+            );
+            LastActiveRoll = LastTest.ActorRoll; LastReactingRoll = null;
+        }
+        UpdateAllFormDisplays();
+    }
+
+    public void RunDiceTestType2(bool will2Win, bool will2Restrain)
+    {
+        GD.Print($"Willpower re-roll! will2Win = {will2Win}, will2Restrain = {will2Restrain}");
+        LastActiveRoll.Reroll(will2Win, will2Restrain);
+        LastTest = LastTest is not null ? LastTest.GetOutcome() : LastTest;
+        LastContest = LastContest is not null ? LastContest.GetOutcome() : LastContest;
+        UpdateAllFormDisplays();
     }
 }

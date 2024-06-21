@@ -19,7 +19,7 @@ public static partial class Utils
 
     public static int FindNthOccurrence(string input, string substr, int n = 1)
     {
-        GD.Print($"Find Nth: called looking for occurrence #{n} of '{substr}' in '{input}'");
+        // GD.Print($"Find Nth: called looking for occurrence #{n} of '{substr}' in '{input}'");
 
         if (n < 1) {
             throw new ArgumentOutOfRangeException($"Utils.FindNthOccurrence(): n = {n}, but must be 1 or more.");
@@ -45,8 +45,29 @@ public static partial class Utils
                 $"Utils.FindNthOccurrence(): found {occurrencesFound} occurrences, but only {n} were asked for! This shouldn't happen."
             );
         }
-        GD.Print($"Find Nth: did NOT find a(n) {n}th occurrence! Only found {occurrencesFound}");
+        // GD.Print($"Find Nth: did NOT find a(n) {n}th occurrence! Only found {occurrencesFound}");
         return -1;
+    }
+
+    public static string InjectSepEveryNthMark(string operand, string sep, int n, string mark)
+    {
+        int nthPlace, placeholder = 0;
+        do
+        {
+            nthPlace = Utils.FindNthOccurrence(operand.Substring(placeholder), sep, n);
+            if (nthPlace > -1)
+            {
+                operand = string.Concat(
+                    operand.AsSpan(0, placeholder + nthPlace + sep.Length),
+                    mark,
+                    operand.AsSpan(placeholder + nthPlace + sep.Length)
+                );
+                placeholder += mark.Length;
+            }
+            placeholder += nthPlace + sep.Length;
+        } while (nthPlace > -1 && placeholder < operand.Length);
+
+        return operand;
     }
 
     public static string Array2String<T>(
@@ -234,12 +255,15 @@ public abstract partial class StatGridDisplay : GridContainer
                 // statValue = currentChar.Block.GetAttr(stat.Id);
                 statValue = GetStatValue(currentChar, stat);
                 dotStatNode.SetMeta(Cfg.KEY_STATVALUE, statValue);
-                dotStatNode.TooltipText = $"{stat.Name} of {statValue}{(stat.Desc != "" ? "\n" : "")}{stat.Desc}";
+                dotStatNode.TooltipText =
+                    $"{stat.Name} of {statValue}{(stat.Desc != "" ? "\n" : "")}{stat.Desc}";
                 foreach (Node subNode in dotStatNode.GetChildren())
                 {
                     if (subNode is TextureRect dotImg)
                     {
-                        dotImg.Texture = GD.Load<Texture2D>($"res://images/gui/dots_red_{Cfg.NUM_WORDS[statValue]}.png");
+                        dotImg.Texture = GD.Load<Texture2D>(
+                            $"res://images/gui/dots_red_{Cfg.NUM_WORDS[statValue]}.png"
+                        );
                     }
                 }
             }

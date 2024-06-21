@@ -1,6 +1,8 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
+using System.IO;
 using System.Linq;
 
 public readonly struct PronounSet
@@ -9,7 +11,8 @@ public readonly struct PronounSet
         string shehethey, string herhimthem, string herhistheir,
         string sheshestheyre, string sheisheistheyare,
         string shellhelltheyll, string herselfhimselfthemself,
-        string strange_adult, string strange_child
+        string strange_adult, string strange_child,
+        string sheshestheyve, string shehashehastheyhave
     )
     {
         SheHeThey = shehethey;
@@ -21,6 +24,8 @@ public readonly struct PronounSet
         HerselfHimselfThemself = herselfhimselfthemself;
         StrangeAdult = strange_adult;
         StrangeChild = strange_child;
+        ShesHesTheyve = sheshestheyve;
+        SheHasHeHasTheyHave = shehashehastheyhave;
     }
 
     public string SheHeThey { get; init; }
@@ -32,6 +37,8 @@ public readonly struct PronounSet
     public string HerselfHimselfThemself { get; init; }
     public string StrangeAdult { get; init; }
     public string StrangeChild { get; init; }
+    public string ShesHesTheyve { get; init; }
+    public string SheHasHeHasTheyHave { get; init; }
 
     public string Subjective { get => this.SheHeThey; }
     public string Objective { get => this.HerHimThem; }
@@ -59,19 +66,23 @@ public readonly struct CharBackground
 public partial class Cfg
 {
     public readonly static PronounSet Woman = new PronounSet(
-        "she", "her", "her", "she's", "she is", "she'll", "herself", "woman", "girl"
+        "she", "her", "her", "she's", "she is", "she'll", "herself",
+        "woman", "girl", "she's", "she has"
     );
 
     public readonly static PronounSet Man = new PronounSet(
-        "he", "him", "his", "he's", "he is", "he'll", "himself", "man", "boy"
+        "he", "him", "his", "he's", "he is", "he'll", "himself",
+        "man", "boy", "he's", "he has"
     );
 
     public readonly static PronounSet Person = new PronounSet(
-        "they", "them", "their", "they're", "they are", "they'll", "themself", "person", "kid"
+        "they", "them", "their", "they're", "they are", "they'll", "themself",
+        "person", "kid", "they've", "they have"
     );
 
     public readonly static PronounSet Thing = new PronounSet(
-        "it", "it", "its", "it's", "it is", "it'll", "itself", "adult", "juvenile"
+        "it", "it", "its", "it's", "it is", "it'll", "itself",
+        "adult", "juvenile", "it's", "it has"
     );
 
     // Woman, Man, Person, Camera
@@ -314,14 +325,21 @@ public partial class TestThing : RefCounted
 
 public partial class V5Entity : Godot.Resource
 {
-    private static List<V5Entity> _allEntities = new List<V5Entity>();
+    private static readonly List<V5Entity> _allEntities = new() { null };
+
+    public static readonly V5Entity Dummy = new() { Name = "Dummy" };
 
     protected bool _initialized = false;
 
+    public int numDiceTests = 0;
+
+    [Signal]
+    public delegate void CharacterUpdateEventHandler(string opt, Variant val);
+
     public V5Entity()
     {
-        Godot.Collections.Dictionary<string, int> baseStats = new Godot.Collections.Dictionary<string, int>();
-        Godot.Collections.Dictionary<string, int> xpCounts = new Godot.Collections.Dictionary<string, int>();
+        Godot.Collections.Dictionary<string, int> baseStats = new();
+        Godot.Collections.Dictionary<string, int> xpCounts = new();
         foreach (V5Stat stat in Cfg.AllStats)
         {
             baseStats[stat.Id] = stat.Min;
@@ -337,14 +355,27 @@ public partial class V5Entity : Godot.Resource
         Initialize();
     }
 
+    private int _hunger = 0;
+
     public V5StatBlock Block { get; init; }
 
+    public string GdtResourceId { get; private set; }
     public string Name { get; set; }
     public PronounSet Pns { get; set; }
-    public int Hunger { get => 0; }
+    public bool HasHunger
+    {
+        get => true; // TODO: Implement creature types.
+    }
+    public int Hunger
+    {
+        get => HasHunger ? _hunger : 0;
+        set => _hunger = value;
+    }
 
     protected void Initialize()
     {
+        GdtResourceId = base.ToString();
+        Name ??= $"-Ent-{V5Entity._allEntities.Count}";
         Pns = Cfg.Person;
         _initialized = true;
         AddNewEntity();
@@ -358,6 +389,13 @@ public partial class V5Entity : Godot.Resource
     public static List<V5Entity> GetAllEntities()
     {
         return _allEntities;
+    }
+
+    public static V5Entity GetEntityFromList(int index, V5Entity fallbackEnt = null)
+    {
+        V5Entity ent = GetAllEntities()[index];
+        ent ??= fallbackEnt ?? V5Entity.Dummy;
+        return ent;
     }
 
     public int Str { get => Block.GetAttr(Cfg.AttrStr.Id); }
@@ -375,6 +413,12 @@ public partial class V5Entity : Godot.Resource
     //public int MaxWill { get => Com + Res; }
 
     public bool Initialized { get => _initialized; }
+
+    public override string ToString()
+    {
+        // return base.ToString();
+        return $"'{Name}'";
+    }
 }
 
 public partial class PlayerChar : V5Entity
@@ -384,7 +428,8 @@ public partial class PlayerChar : V5Entity
     public PlayerChar() : base() { GD.Print("Empty PlayerChar constructor called."); }
 
     public PlayerChar(
-        Godot.Collections.Dictionary<string, int> baseStats, Godot.Collections.Dictionary<string, int> xpCounts
+        Godot.Collections.Dictionary<string, int> baseStats,
+        Godot.Collections.Dictionary<string, int> xpCounts
     ) : base(baseStats, xpCounts)
     {
         //Block = new V5StatBlock(baseStats, xpCounts);
@@ -408,7 +453,6 @@ public partial class PlayerChar : V5Entity
                 // should we use dictionary, hashset or hashtable for stats?
                 // need to get a tuple<> for basestat and xpcount, but what if stat is missing?
                 // do we want null?
-
             }
         }
     }

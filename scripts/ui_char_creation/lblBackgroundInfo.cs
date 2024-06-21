@@ -17,9 +17,9 @@ public partial class lblBackgroundInfo : RichTextLabel
     {
         GD.Print($"{GetClass()}: Current Background is '{currentChar.Background.Name}'");
         string charName;
-        try { charName = currentChar.Name.Trim(); } catch { charName = "Unnamed"; }
+        try { charName = currentChar.Name.Trim(); } catch { charName = "-Ent-Unnamed"; }
         this.Text = "";
-        if (charName is not string || charName == "" || charName == "Unnamed")
+        if (charName is not string || charName == "" || charName.Substr(0, 4) == "-Ent")
         {
             this.Text += $"\"Oh, {currentChar.Pns.HerHimThem}? ";
         }

@@ -1,119 +1,238 @@
-[gd_scene load_steps=7 format=3 uid="uid://fjrbxix8esi5"]
+[gd_scene load_steps=6 format=3 uid="uid://fjrbxix8esi5"]
 
 [ext_resource type="Script" path="res://scripts/ui_dev_mode/uiDevPanel.cs" id="1_m6xt2"]
 [ext_resource type="Script" path="res://scripts/ui_dev_mode/optBtnChooseRoller.cs" id="2_be833"]
 [ext_resource type="Script" path="res://scripts/global/LineEditFormInput.cs" id="3_dep6k"]
-[ext_resource type="Script" path="res://scripts/ui_dev_mode/btnDiceTest1.cs" id="4_ltprm"]
-[ext_resource type="Script" path="res://scripts/ui_dev_mode/lblRollResults1.cs" id="4_x6qmf"]
 [ext_resource type="Script" path="res://scripts/global/RichTextReadout.cs" id="5_ni8rx"]
+[ext_resource type="Script" path="res://scripts/global/BtnFormSubmit.cs" id="7_du0m1"]
 
-[node name="uiDevPanel" type="Control" node_paths=PackedStringArray("_activeHungerOverride", "_reactingHungerOverride")]
+[node name="uiDevPanel" type="Control" node_paths=PackedStringArray("_actorSelection", "_dicePoolInput1", "_activeHungerOverride", "_reactingHungerOverride", "_testDiffInput", "_reactorSelection", "_dicePoolInput2", "_rollReadout", "_btnWillRerollWin", "_btnWillRerollRestrain")]
 layout_mode = 3
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
 grow_horizontal = 0
 script = ExtResource("1_m6xt2")
-_activeHungerOverride = NodePath("margconDpuiMain/vboxContentMain/hboxActorHunger/spinboxActorHunger")
-_reactingHungerOverride = NodePath("margconDpuiMain/vboxContentMain/hboxReactorHunger/spinboxReactorHunger")
+_actorSelection = NodePath("PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxChooseRollerActive/optBtnActiveRoller")
+_dicePoolInput1 = NodePath("PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/inputDicePool1")
+_activeHungerOverride = NodePath("PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxActorHunger/spinboxActorHunger")
+_reactingHungerOverride = NodePath("PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxReactorHunger/spinboxReactorHunger")
+_testDiffInput = NodePath("PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxTestRollParams/spinboxFlatDiff")
+_reactorSelection = NodePath("PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxChooseRollerReacting/optBtnReactingRoller")
+_dicePoolInput2 = NodePath("PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/inputDicePool2")
+_rollReadout = NodePath("PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/lblRtRollReadout")
+_btnWillRerollWin = NodePath("PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxRerollBtns/btnReroll2Win")
+_btnWillRerollRestrain = NodePath("PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxRerollBtns/btnReroll2Restrain")
 
-[node name="margconDpuiMain" type="MarginContainer" parent="."]
+[node name="PanelContainer" type="PanelContainer" parent="."]
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -215.0
-offset_bottom = 150.0
+offset_left = -249.0
+offset_bottom = 389.0
 grow_horizontal = 0
+
+[node name="vboxContentOuter" type="VBoxContainer" parent="PanelContainer"]
+layout_mode = 2
+
+[node name="lblDpuiTitle" type="Label" parent="PanelContainer/vboxContentOuter"]
+layout_mode = 2
+text = "Dev Panel"
+horizontal_alignment = 1
+
+[node name="tabcontDpuiMain" type="TabContainer" parent="PanelContainer/vboxContentOuter"]
+layout_mode = 2
+
+[node name="Dice Roll Tests" type="MarginContainer" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain"]
+layout_mode = 2
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_top = 15
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 15
 
-[node name="vboxContentMain" type="VBoxContainer" parent="margconDpuiMain"]
+[node name="vboxContentMain" type="VBoxContainer" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests"]
 layout_mode = 2
 alignment = 1
 
-[node name="lblActiveRoller" type="Label" parent="margconDpuiMain/vboxContentMain"]
+[node name="hboxChooseRollerActive" type="HBoxContainer" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
 layout_mode = 2
-text = "Active Party:
+
+[node name="lblActiveRoller" type="Label" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxChooseRollerActive"]
+layout_mode = 2
+text = "Acting:
 "
 
-[node name="optBtnActiveRoller" type="OptionButton" parent="margconDpuiMain/vboxContentMain"]
+[node name="optBtnActiveRoller" type="OptionButton" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxChooseRollerActive"]
 layout_mode = 2
+size_flags_horizontal = 3
 script = ExtResource("2_be833")
+activeRoller = true
 
-[node name="lblDicePool1" type="Label" parent="margconDpuiMain/vboxContentMain"]
+[node name="lblDicePool1" type="Label" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
 layout_mode = 2
 text = "Dice Pool #1 (Active Pool)
 "
 
-[node name="inputDicePool1" type="LineEdit" parent="margconDpuiMain/vboxContentMain"]
+[node name="inputDicePool1" type="LineEdit" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
 layout_mode = 2
+text = "5"
 placeholder_text = "Dice pool"
 max_length = 50
 script = ExtResource("3_dep6k")
 NodeGroups = Array[int]([0])
 UiCommandKey = 2
 
-[node name="hboxActorHunger" type="HBoxContainer" parent="margconDpuiMain/vboxContentMain"]
+[node name="hboxActorHunger" type="HBoxContainer" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
 layout_mode = 2
 
-[node name="chkUseActorHunger" type="CheckBox" parent="margconDpuiMain/vboxContentMain/hboxActorHunger"]
+[node name="chkUseActorHunger" type="CheckBox" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxActorHunger"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
 disabled = true
 text = "Use actor Hunger"
 
-[node name="spinboxActorHunger" type="SpinBox" parent="margconDpuiMain/vboxContentMain/hboxActorHunger"]
+[node name="spinboxActorHunger" type="SpinBox" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxActorHunger"]
 layout_mode = 2
 max_value = 5.0
-value = 1.0
+value = 2.0
 
-[node name="lblRollResults1" type="Label" parent="margconDpuiMain/vboxContentMain"]
+[node name="HSeparator" type="HSeparator" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
 layout_mode = 2
-text = "<results>
-"
-script = ExtResource("4_x6qmf")
 
-[node name="lblRtRollResults1" type="RichTextLabel" parent="margconDpuiMain/vboxContentMain"]
-custom_minimum_size = Vector2(200, 60)
+[node name="hboxTestRollParams" type="HBoxContainer" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
 layout_mode = 2
-theme_override_font_sizes/normal_font_size = 18
-theme_override_font_sizes/bold_font_size = 18
-theme_override_font_sizes/italics_font_size = 18
-theme_override_font_sizes/bold_italics_font_size = 18
-theme_override_font_sizes/mono_font_size = 18
-bbcode_enabled = true
-text = "[color=#f00]<res[/color]ults>"
-script = ExtResource("5_ni8rx")
-NodeGroups = Array[int]([1, 6])
 
-[node name="lblReactingRoller" type="Label" parent="margconDpuiMain/vboxContentMain"]
+[node name="lblTestDiff" type="Label" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxTestRollParams"]
 layout_mode = 2
-text = "Reacting Party:
-"
+size_flags_horizontal = 3
+text = "Test (Flat) Difficulty:"
 
-[node name="lblDicePool2" type="Label" parent="margconDpuiMain/vboxContentMain"]
+[node name="spinboxFlatDiff" type="SpinBox" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxTestRollParams"]
 layout_mode = 2
-text = "Dice Pool #2 (Reacting Pool)
+max_value = 25.0
+value = 2.0
+
+[node name="HSeparator2" type="HSeparator" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
+layout_mode = 2
+
+[node name="hboxChooseRollerReacting" type="HBoxContainer" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
+layout_mode = 2
+
+[node name="lblReactingRoller" type="Label" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxChooseRollerReacting"]
+layout_mode = 2
+text = "Reacting:
 "
 
-[node name="hboxReactorHunger" type="HBoxContainer" parent="margconDpuiMain/vboxContentMain"]
+[node name="optBtnReactingRoller" type="OptionButton" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxChooseRollerReacting"]
+layout_mode = 2
+size_flags_horizontal = 3
+script = ExtResource("2_be833")
+activeRoller = null
+
+[node name="lblDicePool2" type="Label" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
+layout_mode = 2
+text = "Dice Pool #2 (Contested Roll)
+"
+
+[node name="inputDicePool2" type="LineEdit" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
+layout_mode = 2
+text = "5"
+placeholder_text = "Dice pool"
+max_length = 50
+script = ExtResource("3_dep6k")
+NodeGroups = Array[int]([0])
+UiCommandKey = 5
+
+[node name="hboxReactorHunger" type="HBoxContainer" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
 layout_mode = 2
 
-[node name="chkUseReactorHunger" type="CheckBox" parent="margconDpuiMain/vboxContentMain/hboxReactorHunger"]
+[node name="chkUseReactorHunger" type="CheckBox" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxReactorHunger"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
 disabled = true
 text = "Use reactor Hunger"
 
-[node name="spinboxReactorHunger" type="SpinBox" parent="margconDpuiMain/vboxContentMain/hboxReactorHunger"]
+[node name="spinboxReactorHunger" type="SpinBox" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxReactorHunger"]
 layout_mode = 2
 max_value = 5.0
 value = 1.0
 
-[node name="btnDiceTest1" type="Button" parent="margconDpuiMain/vboxContentMain"]
+[node name="HSeparator3" type="HSeparator" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
 layout_mode = 2
-text = "Roll Dice"
-script = ExtResource("4_ltprm")
+
+[node name="hboxRunDatBtns" type="HBoxContainer" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
+layout_mode = 2
+
+[node name="btnRunTest" type="Button" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxRunDatBtns"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 3.0
+text = "Run Test"
+script = ExtResource("7_du0m1")
+NodeGroups = Array[int]([0])
+formSubmitUiKey = 2
+
+[node name="btnRunContest" type="Button" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxRunDatBtns"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 3.0
+text = "Run Contest"
+script = ExtResource("7_du0m1")
+NodeGroups = Array[int]([0])
+formSubmitUiKey = 5
+
+[node name="hboxRerollBtns" type="HBoxContainer" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
+layout_mode = 2
+
+[node name="btnReroll2Win" type="Button" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxRerollBtns"]
+layout_mode = 2
+disabled = true
+text = "Willpower Reroll
+(+Successes)"
+script = ExtResource("7_du0m1")
+NodeGroups = Array[int]([0])
+formSubmitUiKey = 3
+
+[node name="btnReroll2Restrain" type="Button" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxRerollBtns"]
+layout_mode = 2
+disabled = true
+text = "Willpower Reroll
+(Avoid messy crit)"
+script = ExtResource("7_du0m1")
+NodeGroups = Array[int]([0])
+formSubmitUiKey = 4
+
+[node name="HSeparator4" type="HSeparator" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
+layout_mode = 2
+
+[node name="lblRollOutcome" type="Label" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
+layout_mode = 2
+text = "Outcome"
+horizontal_alignment = 1
+
+[node name="lblRtRollReadout" type="RichTextLabel" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
+custom_minimum_size = Vector2(350, 60)
+layout_mode = 2
+theme_override_font_sizes/normal_font_size = 16
+theme_override_font_sizes/bold_font_size = 16
+theme_override_font_sizes/italics_font_size = 16
+theme_override_font_sizes/bold_italics_font_size = 16
+theme_override_font_sizes/mono_font_size = 16
+bbcode_enabled = true
+text = "[color=#f00]<res[/color]ults>"
+fit_content = true
+script = ExtResource("5_ni8rx")
+NodeGroups = Array[int]([1, 6])
+
+[node name="Other Stuff" type="MarginContainer" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain"]
+visible = false
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 15
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 15
+
+[node name="Don\'t Even Ask" type="MarginContainer" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain"]
+visible = false
+layout_mode = 2

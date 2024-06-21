@@ -1,24 +1,31 @@
 using Godot;
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 public partial class GameManager : Node
 {
-    public static readonly Godot.Collections.Dictionary<string, string> SCENE_FILEPATHS = 
-        new Godot.Collections.Dictionary<string, string>{
-            [Cfg.SCENE_ROOT] = "res://scenes/test_game_root_2.tscn",
-            [Cfg.SCENE_CCUI] = "res://scenes/ui_char_create.tscn",
-            [Cfg.SCENE_OWUI] = "res://scenes/ui_overworld.tscn"
-        };
+    public static readonly Godot.Collections.Dictionary<string, string> SCENE_FILEPATHS = new()
+    {
+        [Cfg.SCENE_ROOT] = "res://scenes/test_game_root_2.tscn",
+        [Cfg.SCENE_CCUI] = "res://scenes/ui_char_create.tscn",
+        [Cfg.SCENE_OWUI] = "res://scenes/ui_overworld.tscn"
+    };
 
     private PlayerChar _playerchar;
+    private readonly List<PlayerChar> _allCreatedChars = new();
     private uiDevPanel _devPanel;
 
+    public readonly Godot.Collections.Dictionary<string, PlayerChar> DEMO_CHARS = new();
+    public Godot.RandomNumberGenerator Rng { get; private set; }
     public Node CurrentScene { get; private set; }
-    public uiDevPanel DevPanel {
+    public uiDevPanel DevPanel
+    {
         get => _devPanel;
-        set {
-            if (!Cfg.DEV_MODE) {
+        set
+        {
+            if (!Cfg.DEV_MODE)
+            {
                 throw new InvalidOperationException(
                     "Not allowed to set dev panel outside of dev mode!"
                 );
@@ -26,28 +33,49 @@ public partial class GameManager : Node
             _devPanel = value;
         }
     }
-    public PlayerChar playerchar {
+    public PlayerChar playerchar
+    {
         get => _playerchar;
-        set {
-            GD.Print($"{GetType()}:: PlayerChar set! ({_playerchar} -> {value}");
+        set
+        {
+            if (_playerchar is default(PlayerChar))
+            {
+                GD.Print($"{GetType()}:: PlayerChar set for the first time! ({value})");
+            }
+            else
+            {
+                GD.Print($"{GetType()}:: (new) PlayerChar set! ({_playerchar} -> {value}");
+            }
             _playerchar = value;
+            _allCreatedChars.Add(_playerchar);
         }
     }
 
     public GameManager()
     {
-        GD.Print("I'm bout them commas, fuck your comments.");
+        InitGameParams();
+    }
+
+    protected void InitGameParams()
+    {
         Utils.PopulateStatDict(Cfg.Attrs, Cfg.AttrsDict);
         Utils.PopulateStatDict(Cfg.Skills, Cfg.SkillsDict);
-
-        GD.Print("---a01----");
 
         Cfg.AllStats.AddRange(Cfg.Attrs);
         Cfg.AllStats.AddRange(Cfg.Skills);
         Cfg.AllStats.AddRange(Cfg.Disciplines);
         Cfg.AllStats.AddRange(Cfg.Backgrounds);
 
-        GD.Print("---a02----");
+        Rng = Utils.SetRng(new RandomNumberGenerator(), true);
+
+        foreach (CharBackground charbg in Cfg.PcBackgrounds)
+        {
+            DEMO_CHARS.Add(charbg.Name, new PlayerChar()
+            {
+                Name = $"Demo{charbg.Name[..5]}",
+                Background = charbg
+            });
+        }
     }
 
     public override void _Ready()

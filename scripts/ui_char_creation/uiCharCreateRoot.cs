@@ -21,16 +21,29 @@ public partial class uiCharCreateRoot : Control
     public uiCharCreateRoot()
     {
         GD.Print("Character Creation UI | Constructor called.");
-        characterToBe = new PlayerChar();
     }
 
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
-        GD.Print($"{GetClass()}._Ready() start.");
+        GD.Print($"{GetType()}._Ready() start.");
 
         DumpTestNodes();
         gm = GetNode<GameManager>(Cfg.NODEPATH_ABS_GAMEMANAGER);
+        if (gm.playerchar is default(PlayerChar))
+        {
+            characterToBe = new PlayerChar();
+            GD.Print($"{GetType()}._Ready(): Creating new character ({characterToBe}).");
+        }
+        else
+        {
+            characterToBe = gm.playerchar;
+            GD.Print(
+                $"{GetType()}._Ready(): Picking up existing character "
+                + $"({gm.playerchar} should equal ({characterToBe}))."
+            );
+        }
+        // characterToBe = gm.playerchar is default(PlayerChar) ? new PlayerChar() : gm.playerchar;
 
         //CcuiFormInputs = this.GetTree().GetNodesInGroup(Cfg.GROUP_CCUI_FORM_INPUTS);
         CcuiFormInputs = this.GetTree().GetNodesInGroup($"{Cfg.GROUP_NAMES.CCUI_FORM_INPUTS}");
@@ -65,7 +78,7 @@ public partial class uiCharCreateRoot : Control
         }
 
         audioplayer = GetNode<AudioHandler>("/root/AudioHandler");
-        GD.Print($"{GetClass()}._Ready() end.");
+        GD.Print($"{GetType()}._Ready() end.");
     }
 
     // Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -120,7 +133,17 @@ public partial class uiCharCreateRoot : Control
                 Tuple<bool, string[]> validationResults = ValidateCharacter(characterToBe);
                 if (validationResults.Item1)
                 {
-                    gm.playerchar = characterToBe;
+                    if (gm.playerchar is default(PlayerChar))
+                    {
+                        gm.playerchar = characterToBe;
+                    }
+                    else
+                    {
+                        GD.Print(
+                            "Existing player character updated. " +
+                            $"({gm.playerchar} should be the same as {characterToBe})"
+                        );
+                    }
                     gm.GoToNamedScene(Cfg.SCENE_OWUI);
                 }
                 else

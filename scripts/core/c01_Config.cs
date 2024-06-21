@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Godot;
 
 public static partial class Cfg
 {
@@ -62,7 +64,10 @@ public static partial class Cfg
     {
         FORM_SUBMIT,
         SWITCH_SCENE,
-        DICE_TEST_1,
+        DICE_TEST_1_TEST,
+        DICE_TEST_2_REROLL_WIN,
+        DICE_TEST_3_REROLL_RESTRAIN,
+        DICE_TEST_4_CONTEST,
         NAME_ENTRY,
         PRONOUN_SELECT,
         BACKGROUND_SELECT,
@@ -248,13 +253,22 @@ public class V5StatBlock
         return baseStat + xpBonus;
     }
 
+    public static bool IsStatMatch(V5Stat stat, string query)
+    {
+        string queryLc = query.ToLower();
+        if (stat.Id.ToLower() == queryLc || stat.Name.ToLower() == queryLc)
+        {
+            return true;
+        }
+        return false;
+    }
+
     public Tuple<int?, int?> GetStatPair(string statId)
     {
         Tuple<int?, int?> retval = new Tuple<int?, int?>(
             Bases.ContainsKey(statId) ? Bases[statId] : null,
             XpCounts.ContainsKey(statId) ? XpCounts[statId] : null
         );
-        // GD.Print($"{GetType()}.GetStatPair({statId}): Returning: {retval} from {Bases}/{XpCounts}");
         return retval;
     }
 
@@ -271,11 +285,14 @@ public class V5StatBlock
         }
     }
 
+    // Meant to be used with "StatPair" Tuples and as a standalone calculation helper func.
     public static int CalculateStat(int? baseVal, int? xpCount, int xpMult = Cfg.ATTR_MULT)
     {
         if (baseVal is not int || xpCount is not int)
         {
-            throw new ArgumentNullException($"Calculate Stat: Base value ({baseVal}) and XP count ({xpCount}) must be integers!");
+            throw new ArgumentNullException(
+                $"CalculateStat: Base value ({baseVal}) and XP count ({xpCount}) must be integers!"
+            );
         }
         return V5StatBlock.CalculateStatWithXpBonus((int)baseVal, (int)xpCount, xpMult, Cfg.DOT_MAX);
     }
@@ -302,24 +319,28 @@ public class V5StatBlock
         return V5StatBlock.CalculateStat(statPair.Item1, statPair.Item2, Cfg.BG_MULT);
     }
 
-    public int GetStat(string statId)
+    public int GetStat(string statField)
     {
-        if (Cfg.Attrs.Select((stat) => stat.Id).ToArray().Contains(statId))
+        var attrsCheck = Cfg.Attrs.Where((stat) => IsStatMatch(stat, statField));
+        if (attrsCheck.ToArray().Length > 0)
         {
-            return this.GetAttr(statId);
+            return GetAttr(attrsCheck.ToArray()[0].Id);
         }
-        else if (Cfg.Skills.Select((stat) => stat.Id).ToArray().Contains(statId))
+        var skillsCheck = Cfg.Skills.Where((stat) => IsStatMatch(stat, statField));
+        if (skillsCheck.ToArray().Length > 0)
         {
-            return this.GetSkill(statId);
+            return GetSkill(skillsCheck.ToArray()[0].Id);
         }
-        else if (Cfg.Disciplines.Select((stat) => stat.Id).ToArray().Contains(statId))
+        var discsCheck = Cfg.Disciplines.Where((stat) => IsStatMatch(stat, statField));
+        if (discsCheck.ToArray().Length > 0)
         {
-            return this.GetDisc(statId);
+            return GetDisc(discsCheck.ToArray()[0].Id);
         }
-        else if (Cfg.Backgrounds.Select((stat) => stat.Id).ToArray().Contains(statId))
+        var bgCheck = Cfg.Backgrounds.Where((stat) => IsStatMatch(stat, statField));
+        if (bgCheck.ToArray().Length > 0)
         {
-            return this.GetBackground(statId);
+            return GetBackground(bgCheck.ToArray()[0].Id);
         }
-        throw new MissingMemberException($"No stat with name \"{statId}\" could be found!");
+        throw new MissingMemberException($"No stat with id/name \"{statField}\" could be found!");
     }
 }

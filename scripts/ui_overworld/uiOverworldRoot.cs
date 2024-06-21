@@ -9,16 +9,18 @@ public partial class uiOverworldRoot : Control
 
 	[Signal]
 	public delegate void UiButtonPressEventHandler(Cfg.UI_KEY key, string opt);
+	[Signal]
+	public delegate void CharacterUpdateEventHandler(string opt, Variant val);
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
 		gm = GetNode<GameManager>(Cfg.NODEPATH_ABS_GAMEMANAGER);
+		Godot.Callable clbk;
 
 		OwuiControls = GetTree().GetNodesInGroup($"{Cfg.GROUP_NAMES.OWUI_CONTROLS}");
 		foreach (Node node in OwuiControls)
 		{
-			Godot.Callable clbk;
 			if (node is Button btn)
 			{
 				clbk = Callable.From((Cfg.UI_KEY com, string opt) => this.OnButtonPress(com, opt));
@@ -35,8 +37,11 @@ public partial class uiOverworldRoot : Control
 		}
 		else
 		{
-			GD.Print($"gm.playerchar ({typeof(PlayerChar)}) is unset/null.");
+			GD.PrintErr($"gm.playerchar ({typeof(PlayerChar)}) is unset/null.");
 		}
+
+		clbk = Godot.Callable.From((string opt, Variant val) => this.OnCharacterUpdate(opt, val));
+		gm.playerchar.Connect(SignalName.CharacterUpdate, clbk);
 
 		audioplayer = GetNode<AudioHandler>("/root/AudioHandler");
 	}
@@ -44,6 +49,14 @@ public partial class uiOverworldRoot : Control
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
+	}
+
+	public void OnCharacterUpdate(string opt, Variant val)
+	{
+		GD.Print($"{GetType()}.OnCharacterUpdate(): Received opt = {opt} and newValue = {val}.");
+		GetTree().CallGroup(
+			$"{Cfg.GROUP_NAMES.OWUI_DISPLAYS}", "CharCreationUpdate", gm.playerchar
+		);
 	}
 
 	public void OnButtonPress(Cfg.UI_KEY key, string opt) // change this moethod name
