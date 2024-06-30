@@ -2,6 +2,7 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.ExceptionServices;
 using System.Text.RegularExpressions;
 
 public class RollResultSet // Was a struct, but pass-by-value clashed with List properties
@@ -520,7 +521,8 @@ public class V5Contest
         {
             ActorPool = actorPool,
             UseActorHunger = useActorHunger,
-            ActorWill2Win = actorWill2Win, ActorWill2Restrain = actorWill2Restrain
+            ActorWill2Win = actorWill2Win,
+            ActorWill2Restrain = actorWill2Restrain
         };
         return v5Test.Enact();
     }
@@ -540,10 +542,14 @@ public class V5Contest
             actorHungerOverride, reactorHungerOverride, rng
         )
         {
-            ActorPool = actorPool, ReactorPool = reactorPool,
-            UseActorHunger = useActorHunger, UseReactorHunger = useReactorHunger,
-            ActorWill2Win = actorWill2Win, ActorWill2Restrain = actorWill2Restrain,
-            ReactorWill2Win = reactorWill2Win, ReactorWill2Restrain = reactorWill2Restrain
+            ActorPool = actorPool,
+            ReactorPool = reactorPool,
+            UseActorHunger = useActorHunger,
+            UseReactorHunger = useReactorHunger,
+            ActorWill2Win = actorWill2Win,
+            ActorWill2Restrain = actorWill2Restrain,
+            ReactorWill2Win = reactorWill2Win,
+            ReactorWill2Restrain = reactorWill2Restrain
         };
         return v5Contest.Enact();
     }
@@ -730,4 +736,153 @@ public static partial class V5PoolParser
 
         return new ResolvedPool(poolText, resolvedTokens);
     }
+}
+
+public partial class Tracker
+{
+    public enum TRACKER_TYPE
+    {
+        HEALTH,
+        WILLPOWER,
+        HUMANITY,
+        RAGE
+    }
+
+    public enum DMG_TYPE
+    {
+        NONE,
+        SUPERFICIAL,
+        SPF_UNHALVED,
+        AGGRAVATED
+    }
+
+    public static readonly string[] TT_NAMES = { "HP", "Will", "Human", "Rage" };
+
+    public TRACKER_TYPE TrackerType { get; init; }
+    public V5Entity Owner { get; init; }
+    public int Boxes
+    {
+        get {
+            switch (TrackerType)
+            {
+                case TRACKER_TYPE.HEALTH:
+                    int hp = Owner.Sta + 3;
+                    if (Owner.HasPower(Cfg.Pwrs.FortHpBonus))
+                    {
+                        hp += Owner.Block.GetStatOrZero(Cfg.DiscFortitude.Id);
+                    }
+                    return hp;
+                case TRACKER_TYPE.WILLPOWER:
+                    return Owner.Com + Owner.Res;
+                default:
+                    GD.PrintErr($"TrackerType '{TrackerType}' not implemented.");
+                    return 3;
+            }
+        }
+    }
+    public int SpfDamage { get; private set; }
+    public int AggDamage { get; private set; }
+
+    public Tracker(TRACKER_TYPE type, V5Entity owner, bool startClear = true)
+    {
+        if (type == TRACKER_TYPE.HUMANITY || type == TRACKER_TYPE.RAGE)
+        {
+            throw new NotImplementedException("Humanity and Rage Trackers not implemented yet.");
+        }
+        TrackerType = type;
+        if (owner is null)
+        {
+            throw new ArgumentNullException($"{GetType()} 'Owner' must be a valid entity!");
+        }
+        Owner = owner;
+        if (startClear)
+        {
+            Reset();
+        }
+    }
+
+    protected void ProcessOnePointSpf()
+    {
+        if (SpfDamage > 0 && SpfDamage + AggDamage >= Boxes)
+        {
+            SpfDamage--; AggDamage++;
+        }
+        else
+        {
+            SpfDamage++;
+        }
+    }
+
+    protected void ProcessOnePointAgg()
+    {
+        if (Owner.AggDmgMitigation > 0)
+        {
+            Owner.AggDmgMitigation--; SpfDamage++;
+        }
+        else
+        {
+            AggDamage++;
+        }
+    }
+
+    public void TakeDamage(int amount, DMG_TYPE type, V5Entity source = null)
+    {
+        int totalDamage = type == DMG_TYPE.NONE ? 0 : amount;
+        if (type == DMG_TYPE.SUPERFICIAL || type == DMG_TYPE.SPF_UNHALVED)
+        {
+            totalDamage = Math.Max(1, totalDamage - Owner.SpfDmgReduction);
+            if (type == DMG_TYPE.SUPERFICIAL)
+            {
+                totalDamage = (int)Math.Ceiling((decimal)totalDamage / 2);
+            }
+        }
+
+        for (int i = 0; i < totalDamage; i++)
+        {
+            if (type == DMG_TYPE.AGGRAVATED)
+            {
+                ProcessOnePointAgg();
+            }
+            else if (type == DMG_TYPE.SUPERFICIAL || type == DMG_TYPE.SPF_UNHALVED)
+            {
+                ProcessOnePointSpf();
+            }
+
+            if (AggDamage >= Boxes)
+            {
+                Owner.Collapse(TrackerType, source); break;
+            }
+            else if (SpfDamage + AggDamage >= Boxes)
+            {
+                Owner.SetImpairment(TrackerType, true);
+            }
+        }
+    }
+
+    public void Reset()
+    {
+        SpfDamage = 0; AggDamage = 0;
+    }
+
+    public override string ToString()
+    {
+        string toStr = $"{TT_NAMES[(int)TrackerType]}: |";
+        for (int i = 0; i < AggDamage; i++)
+        {
+            toStr += "x|";
+        }
+        for (int i = 0; i < SpfDamage; i++)
+        {
+            toStr += "/|";
+        }
+        for (int i = 0; i < Boxes - SpfDamage - AggDamage; i++)
+        {
+            toStr += "_|";
+        }
+        return toStr;
+    }
+}
+
+public partial class V5Effect
+{
 }

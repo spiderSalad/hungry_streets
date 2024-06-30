@@ -252,8 +252,8 @@ public partial class uiDevPanel : Control
             GD.Print($"\n - Contest, pool of {totalDicePool} vs opp pool {enemyDicePool}\n");
             LastContest = V5Contest.Contest(
                 totalDicePool, actor, true, enemyDicePool, reactor, true,
-                actorHungerOverride: (int) _activeHungerOverride.Value,
-                reactorHungerOverride: (int) _reactingHungerOverride.Value,
+                actorHungerOverride: (int)_activeHungerOverride.Value,
+                reactorHungerOverride: (int)_reactingHungerOverride.Value,
                 rng: gm.Rng
             );
             LastActiveRoll = LastContest.ActorRoll; LastReactingRoll = LastContest.ReactorRoll;

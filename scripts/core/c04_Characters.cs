@@ -1,11 +1,9 @@
 using Godot;
 using System;
 using System.Collections.Generic;
-using System.Dynamic;
-using System.IO;
 using System.Linq;
 
-public readonly struct PronounSet
+public class PronounSet
 {
     public PronounSet(
         string shehethey, string herhimthem, string herhistheir,
@@ -49,11 +47,17 @@ public readonly struct PronounSet
     public string Reflexive { get => this.HerselfHimselfThemself; }
 }
 
-public readonly struct CharBackground
+public class CharBackground
 {
     public readonly string Name;
     public readonly V5StatBlock BaseStatBlock;
     public readonly string Desc;
+
+    public CharBackground(string name)
+    {
+        Name = name; Desc = "Empty background; all stats set to 1 or 0";
+        BaseStatBlock = V5StatBlock.GetBlankBlock();
+    }
 
     public CharBackground(
         string name, Godot.Collections.Dictionary<string, int> baseStats, string desc
@@ -88,7 +92,9 @@ public partial class Cfg
     // Woman, Man, Person, Camera
     public readonly static PronounSet[] PcGenders = { Woman, Man, Person };
 
-    public static CharBackground BgBartender = new CharBackground(
+    public static readonly CharBackground BgEmpty = new("None");
+
+    public static readonly CharBackground BgBartender = new(
         "Bartender",
         // Jack of all Trades (one at 3, five at 2, six at 1)
         new Godot.Collections.Dictionary<string, int>
@@ -120,7 +126,7 @@ public partial class Cfg
         "Cool and confident, if lacking in formal education. Great at listening, decent at most other things."
     );
 
-    public static CharBackground BgInfluencer = new CharBackground(
+    public static readonly CharBackground BgInfluencer = new(
         "Influencer",
         // Specialist (One at 4, two at 3, one at 2, two at 1)
         new Godot.Collections.Dictionary<string, int>
@@ -146,7 +152,7 @@ public partial class Cfg
         "Driven, focused, brimming with superficial cheek and charm. Laser-focused on the grind."
     );
 
-    public static CharBackground BgMedStudent = new CharBackground(
+    public static readonly CharBackground BgMedStudent = new(
         "Med Student",
         // Specialist (One at 4, two at 3, one at 2, two at 1)
         new Godot.Collections.Dictionary<string, int>
@@ -172,7 +178,7 @@ public partial class Cfg
         "Studious and thoughtful, but long nights have taken a toll on physical health."
     );
 
-    public static CharBackground BgStarAthlete = new CharBackground(
+    public static readonly CharBackground BgStarAthlete = new(
         "Star Athlete",
         // Balanced (Two at 3, four at 2, three at 1)
         new Godot.Collections.Dictionary<string, int>
@@ -201,7 +207,7 @@ public partial class Cfg
         "Strong and stately, with an easy smile. Tireless with a goal in mind, but surprisingly unassertive."
     );
 
-    public static CharBackground BgVeteran = new CharBackground(
+    public static readonly CharBackground BgVeteran = new(
         "Veteran",
         // Balanced (Two at 3, four at 2, three at 1)
         new Godot.Collections.Dictionary<string, int>
@@ -230,8 +236,8 @@ public partial class Cfg
         "Quick-witted and tough, but standoffish and mistrustful due to trial and trauma."
     );
 
-    public static CharBackground BgContractor = new CharBackground( // Still working on this one,
-                                                                    // may change completely
+    public static readonly CharBackground BgContractor = new(
+        // Still working on this one, may change completely
         "Contractor",
         // Jack of all Trades (one at 3, five at 2, six at 1)
         new Godot.Collections.Dictionary<string, int>
@@ -265,11 +271,11 @@ public partial class Cfg
 
     public readonly static CharBackground[] PcBackgrounds =
     {
-        BgBartender, BgInfluencer, BgMedStudent, BgStarAthlete, BgVeteran
+        BgBartender, BgInfluencer, BgMedStudent, BgVeteran, BgStarAthlete
     };
 }
 
-public readonly struct V5Clan
+public class V5Clan
 {
     public V5Clan(
         string name, string epithet, string informal, string slur,
@@ -280,12 +286,12 @@ public readonly struct V5Clan
         InClanDisciplines = inclans;
     }
 
-    public readonly string Name { get; init; }
-    public readonly string Informal { get; init; }
-    public readonly string Epithet { get; init; }
-    public readonly string Slur { get; init; }
+    public string Name { get; init; }
+    public string Informal { get; init; }
+    public string Epithet { get; init; }
+    public string Slur { get; init; }
 
-    public readonly V5Stat[] InClanDisciplines { get; init; }
+    public V5Stat[] InClanDisciplines { get; init; }
 }
 
 public partial class Cfg
@@ -338,28 +344,32 @@ public partial class V5Entity : Godot.Resource
 
     public V5Entity()
     {
-        Godot.Collections.Dictionary<string, int> baseStats = new();
-        Godot.Collections.Dictionary<string, int> xpCounts = new();
-        foreach (V5Stat stat in Cfg.AllStats)
-        {
-            baseStats[stat.Id] = stat.Min;
-            xpCounts[stat.Id] = 0;
-        }
-        Block = new V5StatBlock(baseStats, xpCounts);
+        Block = V5StatBlock.GetBlankBlock();
+        Hp = new(Tracker.TRACKER_TYPE.HEALTH, this);
+        Will = new(Tracker.TRACKER_TYPE.WILLPOWER, this);
         Initialize();
     }
 
-    public V5Entity(Godot.Collections.Dictionary<string, int> baseStats, Godot.Collections.Dictionary<string, int> xpCounts)
+    public V5Entity(
+        Godot.Collections.Dictionary<string, int> baseStats,
+        Godot.Collections.Dictionary<string, int> xpCounts
+    )
     {
         Block = new V5StatBlock(baseStats, xpCounts);
+        Hp = new(Tracker.TRACKER_TYPE.HEALTH, this);
+        Will = new(Tracker.TRACKER_TYPE.WILLPOWER, this);
         Initialize();
     }
 
     private int _hunger = 0;
+    private int _aggDmgMitigationPoints = 0;
 
     public V5StatBlock Block { get; init; }
+    public Tracker Hp { get; init; }
+    public Tracker Will { get; init; }
 
     public string GdtResourceId { get; private set; }
+    public string Id { get; private set; }
     public string Name { get; set; }
     public PronounSet Pns { get; set; }
     public bool HasHunger
@@ -371,11 +381,14 @@ public partial class V5Entity : Godot.Resource
         get => HasHunger ? _hunger : 0;
         set => _hunger = value;
     }
+    public bool IsDead { get; private set; } = false;
+    public bool CanThink { get; private set; } = true;
+    public int UnspentXp { get; private set; } = 0;
 
     protected void Initialize()
     {
         GdtResourceId = base.ToString();
-        Name ??= $"-Ent-{V5Entity._allEntities.Count}";
+        Id = $"-Ent-{V5Entity._allEntities.Count}"; Name ??= Id;
         Pns = Cfg.Person;
         _initialized = true;
         AddNewEntity();
@@ -383,6 +396,7 @@ public partial class V5Entity : Godot.Resource
 
     private void AddNewEntity() // TODO: Get rid of this later.
     {
+        GD.Print($"\n -- AddNewEntity() called: {this}/'{Id}' --\n");
         _allEntities.Add(this);
     }
 
@@ -414,6 +428,88 @@ public partial class V5Entity : Godot.Resource
 
     public bool Initialized { get => _initialized; }
 
+    // TODO: Change this to either class or struct that includes prerequisites
+    public readonly List<V5Power> Powers = new();
+    public readonly List<string> Buffs = new();
+
+    public int GetStatOrZero(string statField)
+    {
+        return Block?.GetStatOrZero(statField) ?? 0;
+    }
+
+    public bool HasDisc(string discField)
+    {
+        return Block.GetStatOrZero(discField) > 0;
+    }
+
+    // TODO: Implement these, along with structs for powers/buffs
+    public bool HasPower(V5Power power)
+    {
+        bool pwrCmpr(V5Power pwr)
+        {
+            return pwr == power || pwr.Id == power.Id || pwr.Name == power.Name;
+        }
+        V5Power[] matchingPowers = Powers.Where(pwrCmpr).ToArray();
+        return matchingPowers.Length > 0;
+    }
+
+    public bool HasEffect(string effectName)
+    {
+        return Buffs.Contains(effectName);
+    }
+
+    public int SpfDmgReduction
+    {
+        get
+        {
+            int fortLevel = Block.GetStatOrZero(Cfg.DiscFortitude.Id);
+            if (fortLevel > 0 && HasEffect("Toughness"))
+            {
+                return fortLevel;
+            }
+            return 0;
+        }
+    }
+    public int AggDmgMitigation
+    {
+        get => HasEffect("Defy Bane") ? _aggDmgMitigationPoints : 0;
+        set => _aggDmgMitigationPoints = Math.Max(0, value);
+    }
+
+    public void SetImpairment(Tracker.TRACKER_TYPE trackerType, bool impaired = true)
+    {
+        // TODO: Should Impairment be Buff or internal bool value?
+        GD.Print($"Impairment ({trackerType}) for {this} set to {impaired}.");
+    }
+
+    public void Collapse(Tracker.TRACKER_TYPE trackerType, V5Entity lastSource = null)
+    {
+        if (trackerType == Tracker.TRACKER_TYPE.HEALTH)
+        {
+            if (this is PlayerChar)
+            {
+                HandlePcDeath();
+            }
+            else
+            {
+                IsDead = true;
+            }
+        }
+        else if (trackerType == Tracker.TRACKER_TYPE.WILLPOWER)
+        {
+            CanThink = false;
+        }
+        else
+        {
+            throw new NotImplementedException("Humanity and Rage Trackers not implemented yet!");
+        }
+    }
+
+    public void HandlePcDeath()
+    {
+        GD.Print("\n\n --- LMAO u ded (if implemented) ---\n\n");
+    }
+
     public override string ToString()
     {
         // return base.ToString();
@@ -425,14 +521,17 @@ public partial class PlayerChar : V5Entity
 {
     private CharBackground _Background;
 
-    public PlayerChar() : base() { GD.Print("Empty PlayerChar constructor called."); }
+    public PlayerChar() : base()
+    {
+        GD.Print("Empty PlayerChar constructor called.");
+        Background = Cfg.BgEmpty;
+    }
 
     public PlayerChar(
         Godot.Collections.Dictionary<string, int> baseStats,
         Godot.Collections.Dictionary<string, int> xpCounts
     ) : base(baseStats, xpCounts)
     {
-        //Block = new V5StatBlock(baseStats, xpCounts);
         GD.Print("Second PlayerChar constructor called.");
     }
 
@@ -442,17 +541,13 @@ public partial class PlayerChar : V5Entity
         set
         {
             _Background = value;
-            GD.Print($"Background changed to {Background.Name}");
+            GD.Print($"Background of ${this}({GdtResourceId}) changed to {Background.Name}");
             foreach (V5Stat stat in Cfg.AllStats)
             {
                 Tuple<int?, int?> statPair = Background.BaseStatBlock.GetStatPair(stat.Id);
                 int newStatValue = statPair.Item1 is int ? (int)statPair.Item1 : stat.Min;
-                // GD.Print($"Setting {stat.Id} to {newStatValue} b/c statPair.Item1 = {statPair.Item1}");
-                this.Block.SetBaseStat(stat.Id, newStatValue);
-                // TO-DID (kinda): Start here, or actually fix/refactor stat block
-                // should we use dictionary, hashset or hashtable for stats?
-                // need to get a tuple<> for basestat and xpcount, but what if stat is missing?
-                // do we want null?
+                // GD.Print($"Setting {stat.Id} to {newStatValue} for {this} (w/ Block {Block}) b/c statPair.Item1 = {statPair.Item1}");
+                Block.SetBaseStat(stat.Id, newStatValue);
             }
         }
     }

@@ -61,20 +61,49 @@ public partial class GameManager : Node
         Utils.PopulateStatDict(Cfg.Attrs, Cfg.AttrsDict);
         Utils.PopulateStatDict(Cfg.Skills, Cfg.SkillsDict);
 
-        Cfg.AllStats.AddRange(Cfg.Attrs);
-        Cfg.AllStats.AddRange(Cfg.Skills);
-        Cfg.AllStats.AddRange(Cfg.Disciplines);
-        Cfg.AllStats.AddRange(Cfg.Backgrounds);
-
         Rng = Utils.SetRng(new RandomNumberGenerator(), true);
 
         foreach (CharBackground charbg in Cfg.PcBackgrounds)
         {
             DEMO_CHARS.Add(charbg.Name, new PlayerChar()
             {
-                Name = $"Demo{charbg.Name[..5]}",
+                Name = $"Fk{charbg.Name[..7]}",
                 Background = charbg
             });
+        }
+
+        ValidateGameParams();
+    }
+
+    protected void ValidateGameParams()
+    {
+        // Check that powers are in their proper place within discipline trees.
+        foreach (var keyValuePair in Cfg.DiscPowerTrees)
+        {
+            string discId = keyValuePair.Key;
+            List<List<V5Power>> discTree = keyValuePair.Value;
+            for (int i = 0; i < discTree.Count; i++)
+            {
+                List<V5Power> powersAtRank = discTree[i];
+                foreach (V5Power power in powersAtRank)
+                {
+                    if (power.Rank != i+1)
+                    {
+                        throw new ArgumentOutOfRangeException(
+                            "ValidateGameParams(): " +
+                            $"Power '{power.Name}' has wrong rank ({power.Rank}, should be {i+1})!"
+                        );
+                    }
+                    if (power.StatId != discId)
+                    {
+                        throw new ArgumentOutOfRangeException(
+                            "ValidateGameParams(): " +
+                            $"Power '{power.Name}' has discipline id '{power.StatId}', " +
+                            $"but it's been placed in '{discId}'!"
+                        );
+                    }
+                }
+            }
         }
     }
 

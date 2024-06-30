@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Godot;
 
@@ -13,7 +12,7 @@ public static partial class Cfg
     public const int DISC_MULT_IN_CLAN = 5;
     public const int DISC_MULT_CAITIFF = 6;
     public const int DISC_MULT_OUT_CLAN = 7;
-    public const int BG_MULT = 5;
+    public const int BG_MULT = 3; // was 5 for some reason?
 
     public const int DOT_MAX = 5;
     public const int NPC_SKILL_MAX = 15;
@@ -36,13 +35,6 @@ public static partial class Cfg
     public const string SCENE_CCUI = "char_creation_ui_scene";
     public const string SCENE_OWUI = "overworld_ui";
 
-    // public const string GROUP_DPUI_INPUTS = "dev_panel_ui_inputs";
-    // public const string GROUP_DPUI_DISPLAYS = "dev_panel_ui_displays";
-    // public const string GROUP_CCUI_FORM_INPUTS = "char_creation_ui_inputs";
-    // public const string GROUP_CCUI_FORM_DISPLAYS = "char_creation_ui_displays";
-    // public const string GROUP_OWUI_CONTROLS = "overworld_ui_controls";
-    // public const string GROUP_OWUI_DISPLAYS = "overworld_ui_displays";
-
     public enum GROUP_NAMES
     {
         DPUI_INPUTS,
@@ -55,10 +47,6 @@ public static partial class Cfg
         UI_ACTIVE_ROLL,
         UI_REACTING_ROLL
     }
-
-    // public const string KEY_UI_FORMSUBMIT = "Form_Submit";
-    // public const string KEY_UI_SWITCH_SCENE = "Switch_Scene";
-    // public const string KEY_UI_DICETEST_1 = "Dice_Test_1";
 
     public enum UI_KEY
     {
@@ -80,7 +68,7 @@ public static partial class Cfg
     public const string PATH_SOUND = "res://audio/sounds/";
 }
 
-public readonly struct V5Stat
+public class V5Stat
 {
     public V5Stat(string id, string name, int min = Cfg.DOT_MIN, string desc = "...")
     {
@@ -181,7 +169,7 @@ public partial class Cfg
         new System.Collections.Generic.Dictionary<string, V5Stat>();
 
     public static V5Stat DiscAnimalism = new V5Stat("animalism", "Animalism",
-        desc: "Communion with the Beast - within yourself and others.");
+        desc: "Communion with the Beast within - yours, and others'.");
     public static V5Stat DiscAuspex = new V5Stat("auspex", "Auspex");
     public static V5Stat DiscCelerity = new V5Stat("celerity", "Celerity");
     public static V5Stat DiscDominate = new V5Stat("dominate", "Dominate");
@@ -207,7 +195,9 @@ public partial class Cfg
     public readonly static System.Collections.Generic.Dictionary<string, V5Stat> BackgroundsDict =
         new System.Collections.Generic.Dictionary<string, V5Stat>();
 
-    public static List<V5Stat> AllStats = new List<V5Stat>();
+    public static List<V5Stat> AllStats = new List<V5Stat>(
+        Cfg.Attrs.Concat(Cfg.Skills).Concat(Cfg.Disciplines).Concat(Cfg.Backgrounds)
+    );
 }
 
 public class V5StatBlock
@@ -215,8 +205,12 @@ public class V5StatBlock
     protected Godot.Collections.Dictionary<string, int> Bases;
     protected Godot.Collections.Dictionary<string, int> XpCounts;
 
+    public static int NumBlocksMade { get; private set; } = 0;
+    public string SbId { get; init; }
+
     public V5StatBlock()
     {
+        SbId = $"StatBlock-type-1-Id-{++NumBlocksMade}";
         Bases = new Godot.Collections.Dictionary<string, int>();
         XpCounts = new Godot.Collections.Dictionary<string, int>();
     }
@@ -224,6 +218,7 @@ public class V5StatBlock
     public V5StatBlock(Godot.Collections.Dictionary<string, int> bases)
     {
         // GD.Print($"V5StatBlock Constructor - 2 - called, with bases dict:\n{bases}");
+        SbId = $"StatBlock-type-2-Id-{++NumBlocksMade}";
         Bases = bases;
         XpCounts = new Godot.Collections.Dictionary<string, int>();
         foreach ((string statName, int baseVal) in bases)
@@ -237,7 +232,21 @@ public class V5StatBlock
         Godot.Collections.Dictionary<string, int> xpCounts
     )
     {
+        SbId = $"StatBlock-type-3-{++NumBlocksMade}";
         Bases = bases; XpCounts = xpCounts;
+    }
+
+    public static V5StatBlock GetBlankBlock()
+    {
+        Godot.Collections.Dictionary<string, int> bs = new();
+        Godot.Collections.Dictionary<string, int> xpc = new();
+        V5Stat[] allODemStats = Cfg.AllStats.ToArray();
+        foreach (V5Stat stat in allODemStats)
+        {
+            bs[stat.Id] = stat.Min; xpc[stat.Id] = 0;
+            // GD.Print($"BlankBlock setup: bs[{stat.Id}] = {bs[stat.Id]}, xpc[{stat.Id}] = {xpc[stat.Id]}");
+        }
+        return new V5StatBlock(bs, xpc);
     }
 
     public static int CalculateStatWithXpBonus(int baseStat, int xpInvested, int statMultiplier, int max = 5)
@@ -265,7 +274,7 @@ public class V5StatBlock
 
     public Tuple<int?, int?> GetStatPair(string statId)
     {
-        Tuple<int?, int?> retval = new Tuple<int?, int?>(
+        Tuple<int?, int?> retval = new(
             Bases.ContainsKey(statId) ? Bases[statId] : null,
             XpCounts.ContainsKey(statId) ? XpCounts[statId] : null
         );
@@ -319,28 +328,398 @@ public class V5StatBlock
         return V5StatBlock.CalculateStat(statPair.Item1, statPair.Item2, Cfg.BG_MULT);
     }
 
-    public int GetStat(string statField)
+    public static Tuple<V5Stat[], V5Stat[]> GetStatGrouping(string statField)
     {
-        var attrsCheck = Cfg.Attrs.Where((stat) => IsStatMatch(stat, statField));
-        if (attrsCheck.ToArray().Length > 0)
+        var attrsCheck = Cfg.Attrs.Where((stat) => IsStatMatch(stat, statField)).ToArray();
+        if (attrsCheck.Length > 0)
         {
-            return GetAttr(attrsCheck.ToArray()[0].Id);
+            return new(Cfg.Attrs, attrsCheck);
         }
-        var skillsCheck = Cfg.Skills.Where((stat) => IsStatMatch(stat, statField));
-        if (skillsCheck.ToArray().Length > 0)
+        var skillsCheck = Cfg.Skills.Where((stat) => IsStatMatch(stat, statField)).ToArray();
+        if (skillsCheck.Length > 0)
         {
-            return GetSkill(skillsCheck.ToArray()[0].Id);
+            return new(Cfg.Skills, skillsCheck);
         }
-        var discsCheck = Cfg.Disciplines.Where((stat) => IsStatMatch(stat, statField));
-        if (discsCheck.ToArray().Length > 0)
+        var discsCheck = Cfg.Disciplines.Where((stat) => IsStatMatch(stat, statField)).ToArray();
+        if (discsCheck.Length > 0)
         {
-            return GetDisc(discsCheck.ToArray()[0].Id);
+            return new(Cfg.Disciplines, discsCheck);
         }
-        var bgCheck = Cfg.Backgrounds.Where((stat) => IsStatMatch(stat, statField));
-        if (bgCheck.ToArray().Length > 0)
+        var bgCheck = Cfg.Backgrounds.Where((stat) => IsStatMatch(stat, statField)).ToArray();
+        if (bgCheck.Length > 0)
         {
-            return GetBackground(bgCheck.ToArray()[0].Id);
+            return new(Cfg.Backgrounds, bgCheck);
         }
         throw new MissingMemberException($"No stat with id/name \"{statField}\" could be found!");
+    }
+
+    public int GetStat(string statField)
+    {
+        var statGrouping = GetStatGrouping(statField);
+        V5Stat[] category = statGrouping.Item1, searchResults = statGrouping.Item2;
+        if (category == Cfg.Attrs)
+        {
+            return GetAttr(searchResults[0].Id);
+        }
+        else if (category == Cfg.Skills)
+        {
+            return GetSkill(searchResults[0].Id);
+        }
+        else if (category == Cfg.Disciplines)
+        {
+            return GetDisc(searchResults[0].Id);
+        }
+        else if (category == Cfg.Backgrounds)
+        {
+            return GetBackground(searchResults[0].Id);
+        }
+        throw new Exception("GetStatCategory() returned something unexpected.");
+    }
+
+    public int GetStatOrZero(string statField)
+    {
+        try
+        {
+            int statValue = GetStat(statField);
+            return statValue;
+        }
+        catch (ArgumentNullException anex)
+        {
+            GD.PrintErr($"GetStatDefaultZero(): '{statField}' not found; returning zero: {anex})");
+            return 0;
+        }
+        catch (Exception ex)
+        {
+            GD.PrintErr($"GetStatDefaultZero(): Returning zero due to exception: {ex})");
+            return 0;
+        }
+    }
+
+    public static int RankUpXpRequired(V5Stat stat, V5Entity buyer)
+    {
+        return RankUpXpRequired(stat.Id, buyer);
+    }
+
+    public static int RankUpXpRequired(string statId, V5Entity buyer)
+    {
+        var statGrouping = GetStatGrouping(statId);
+        V5Stat[] category = statGrouping.Item1; // searchResults = statGrouping.Item2;
+        int nextRank = buyer.GetStatOrZero(statId), mult;
+        if (category == Cfg.Attrs) { mult = Cfg.ATTR_MULT; }
+        else if (category == Cfg.Skills) { mult = Cfg.SKILL_MULT; }
+        else if (category == Cfg.Disciplines)
+        {
+            // TODO: Update this to check in-clan, etc.
+            mult = Cfg.DISC_MULT_IN_CLAN;
+        }
+        else if (category == Cfg.Backgrounds) { mult = Cfg.BG_MULT; }
+        else { mult = 3; }
+        return nextRank * mult;
+    }
+
+    public override string ToString()
+    {
+        string toStr = $"\n-- StatBlock ({SbId}) --\n";
+        foreach (V5Stat stat in Cfg.Attrs)
+        {
+            toStr += $"{stat.Id}: {GetStatOrZero(stat.Id)},  ";
+        }
+        toStr += "\n";
+        foreach (V5Stat stat in Cfg.Skills)
+        {
+            toStr += $"{stat.Id}: {GetStatOrZero(stat.Id)},  ";
+        }
+        toStr += "\n";
+        foreach (V5Stat stat in Cfg.Disciplines)
+        {
+            toStr += $"{stat.Id}: {GetStatOrZero(stat.Id)},  ";
+        }
+        toStr += $"\n-- end ^StatBlock ({SbId}) --";
+        return toStr;
+    }
+}
+
+public partial class V5Power
+{
+    public enum POWER_TYPE
+    {
+        PASSIVE,
+        FREE_TOGGLE,
+        ACTIVATED,
+        SINGLE_USE
+        // TODO: Finish these
+    }
+
+    public enum POWER_PURCHASE_REQS
+    {
+        RANK,
+        XP,
+        AMALG_RANK,
+        POWER_PREREQ,
+        OTHER_DISQUALIFIER
+    }
+
+    public static int InstanceCount { get; private set; } = 0;
+    public string StatId { get; init; }
+    public int Rank { get; init; }
+    public string Id { get; init; }
+    public string Name { get; init; }
+    public POWER_TYPE PowerType { get; init; }
+    public int Cost { get; init; }
+
+    public V5Power(
+        string powerName, V5Stat stat, int rank, int cost,
+        POWER_TYPE powerType = POWER_TYPE.ACTIVATED
+    )
+    {
+        StatId = stat.Id;
+        Id = $"v5Power-{stat.Name}-{++InstanceCount}"; Name = powerName;
+        PowerType = powerType; Rank = rank; Cost = cost;
+    }
+}
+
+// Cfg powers list
+public partial class Cfg
+{
+    public static partial class Pwrs
+    {
+        // Animalism
+        public static readonly V5Power AnimFamulus = new("Bond Famulus", DiscAnimalism, 1, 4);
+        public static readonly V5Power AnimSenseBeast = new("Sense the Beast", DiscAnimalism, 1, 1);
+        public static readonly V5Power AnimSpeak = new("Feral Whispers", DiscAnimalism, 2, 4);
+        public static readonly V5Power AnimCarrierPigeon
+            = new("Animal Messenger", DiscAnimalism, 2, 4);
+        public static readonly V5Power AnimSucculence = new("Animal Succulence", DiscAnimalism, 3, 0);
+        public static readonly V5Power AnimSonOfSam = new("Messenger's Command", DiscAnimalism, 3, 4);
+        public static readonly V5Power AnimQuell = new("Quell the Beast", DiscAnimalism, 3, 4);
+        public static readonly V5Power AnimHive = new("Unliving Hive", DiscAnimalism, 3, 0);
+        // Auspex
+        public static readonly V5Power AuspDaredevil = new("Heightened Senses", DiscAuspex, 1, 1);
+        public static readonly V5Power AuspEsp = new("Sense the Unseen", DiscAuspex, 1, 1);
+        // Celerity
+        public static readonly V5Power CeleGrace = new("Cat's Grace", DiscCelerity, 1, 0);
+        public static readonly V5Power CeleTwitch = new("Rapid Reflexes", DiscCelerity, 1, 0);
+        public static readonly V5Power CeleFleet = new("Fleetness", DiscCelerity, 2, 4);
+        public static readonly V5Power CeleBlink = new("Blink", DiscCelerity, 3, 4);
+        public static readonly V5Power CeleMatrixDodge = new("Weaving", DiscCelerity, 4, 4);
+        // Dominate
+        public static readonly V5Power DomiForget = new("Cloud Memory", DiscDominate, 1, 0);
+        public static readonly V5Power DomiCompel = new("Compel", DiscDominate, 1, 1);
+        public static readonly V5Power DomiDevotion = new("Slavish Devotion", DiscDominate, 1, 0);
+        public static readonly V5Power DomiMesmerize = new("Mesmerize", DiscDominate, 2, 4);
+        public static readonly V5Power DomiGaslight = new("Compel", DiscDominate, 3, 4);
+        // Fortitude
+        public static readonly V5Power FortHpBonus = new("Resilience", DiscFortitude, 1, 0);
+        public static readonly V5Power FortWill = new("Unswayable Mind", DiscFortitude, 1, 0);
+        public static readonly V5Power FortTough = new("Toughness", DiscFortitude, 2, 4);
+        public static readonly V5Power FortBane = new("Defy Bane", DiscFortitude, 3, 4);
+        // Obfuscate
+        public static readonly V5Power ObfuFade = new("Cloak of Shadows", DiscObfuscate, 1, 1);
+        public static readonly V5Power ObfuSilence = new("Silence of Death", DiscObfuscate, 1, 1);
+        public static readonly V5Power ObfuStealth = new("Unseen Passage", DiscObfuscate, 2, 4);
+        public static readonly V5Power ObfuTrick = new("Chimerstry", DiscObfuscate, 2, 4);
+        public static readonly V5Power ObfuMask
+            = new("Mask of a Thousand Faces", DiscObfuscate, 3, 4);
+        public static readonly V5Power ObfuLaughingMan
+            = new("Ghost in the Machine", DiscObfuscate, 3, 0);
+        public static readonly V5Power ObfuHallucination = new("Fata Morgana", DiscObfuscate, 3, 4);
+        public static readonly V5Power ObfuVanish = new("Vanish", DiscObfuscate, 4, 0);
+        // Oblivion
+        public static readonly V5Power ObliShadowCloak = new("Shadow Raiment", DiscOblivion, 1, 0);
+        // Potence
+        public static readonly V5Power PoteFatality = new("Vanish", DiscPotence, 1, 0);
+        public static readonly V5Power PoteSuperjump = new("Soarling Leap", DiscPotence, 1, 0);
+        public static readonly V5Power PoteProwess = new("Prowess", DiscPotence, 2, 4);
+        public static readonly V5Power PoteMegasuck = new("Brutal Feed", DiscPotence, 3, 0);
+        public static readonly V5Power PoteRage = new("Spark of Rage", DiscPotence, 3, 4);
+        // Presence
+        public static readonly V5Power PresAwe = new("Awe", DiscPresence, 1, 1);
+        public static readonly V5Power PresDaunt = new("Daunt", DiscPresence, 1, 1);
+        public static readonly V5Power PresAddicted2U = new("Lingering Kiss", DiscPresence, 2, 0);
+        public static readonly V5Power PresEntrance = new("Entracement", DiscPresence, 3, 4);
+        public static readonly V5Power PresScaryface = new("Dread Gaze", DiscPresence, 3, 4);
+        // Protean
+        public static readonly V5Power ProtRedEye = new("Eyes of the Beast", DiscProtean, 1, 1);
+        public static readonly V5Power ProtFeather = new("Weight of the Feather", DiscProtean, 1, 1);
+        public static readonly V5Power ProtToothNClaw = new("Feral Weapons", DiscProtean, 2, 4);
+        public static readonly V5Power ProtMoldSelf = new("Vicissitude", DiscProtean, 2, 4);
+        public static readonly V5Power ProtDirtNap = new("Earthmeld", DiscProtean, 3, 4);
+        public static readonly V5Power ProtMoldOthers = new("Fleshcrafting", DiscProtean, 3, 4);
+        public static readonly V5Power ProtBooBleh = new("Shapechagne", DiscProtean, 3, 4);
+        public static readonly V5Power ProtDruid = new("Metamorphosis", DiscProtean, 4, 4);
+        public static readonly V5Power ProtFinalForm = new("Horride Form", DiscProtean, 4, 4);
+        // Blood Sorcery
+        public static readonly V5Power SorcAcidBlood = new("Corrosive Vitae", DiscSorcery, 1, 4); // +
+        public static readonly V5Power SorcBloodyPresti
+            = new("Shape the Sanguine Sacrament", DiscSorcery, 1, 0); // +
+        // Thin-Blood Alchemy
+        public static readonly V5Power AlchTelekinesis = new("Far Reach", DiscAlchemy, 1, 4);
+        public static readonly V5Power AlchCounterfeitL1
+            = new("Counterfeit Discipline (Level 1)", DiscAlchemy, 2, 0); // Same as power faked
+        public static readonly V5Power AlchCounterfeitL2
+            = new("Counterfeit Discipline (Level 2)", DiscAlchemy, 3, 0);
+        public static readonly V5Power AlchNewYou
+            = new("Profane Hieros Gamos", DiscAlchemy, 3, 0); // 1 Rouse (vamps), 1 Agg (humans)
+    }
+
+    // --- Cfg power trees
+    public static readonly Dictionary<string, List<List<V5Power>>> DiscPowerTrees = new()
+    {
+        [Cfg.DiscAnimalism.Id] = new()
+        {
+            new(){Pwrs.AnimFamulus, Pwrs.AnimSenseBeast},
+            new(){Pwrs.AnimSpeak, Pwrs.AnimCarrierPigeon},
+            new(){Pwrs.AnimSucculence, Pwrs.AnimSonOfSam, Pwrs.AnimQuell, Pwrs.AnimHive}
+        },
+        [Cfg.DiscAuspex.Id] = new()
+        {
+            new(){Pwrs.AuspDaredevil, Pwrs.AuspEsp}
+        },
+        [Cfg.DiscCelerity.Id] = new()
+        {
+            new(){Pwrs.CeleGrace, Pwrs.CeleTwitch},
+            new(){Pwrs.CeleFleet},
+            new(){Pwrs.CeleBlink},
+            new(){Pwrs.CeleMatrixDodge}
+        },
+        [Cfg.DiscDominate.Id] = new()
+        {
+            new(){Pwrs.DomiForget, Pwrs.DomiCompel, Pwrs.DomiDevotion},
+            new(){Pwrs.DomiMesmerize},
+            new(){Pwrs.DomiGaslight}
+        },
+        [Cfg.DiscFortitude.Id] = new()
+        {
+            new(){Pwrs.FortHpBonus},
+            new(){Pwrs.FortTough},
+            new(){Pwrs.FortBane}
+        },
+        [Cfg.DiscObfuscate.Id] = new()
+        {
+            new(){Pwrs.ObfuFade, Pwrs.ObfuSilence},
+            new(){Pwrs.ObfuTrick, Pwrs.ObfuStealth},
+            new(){Pwrs.ObfuHallucination, Pwrs.ObfuLaughingMan, Pwrs.ObfuMask},
+            new(){Pwrs.ObfuVanish}
+        },
+        [Cfg.DiscOblivion.Id] = new()
+        {
+            new(){Pwrs.ObliShadowCloak}
+        },
+        [Cfg.DiscPotence.Id] = new()
+        {
+            new(){Pwrs.PoteFatality, Pwrs.PoteSuperjump},
+            new(){Pwrs.PoteProwess},
+            new(){Pwrs.PoteMegasuck, Pwrs.PoteRage}
+        },
+        [Cfg.DiscPresence.Id] = new()
+        {
+            new(){Pwrs.PresAwe, Pwrs.PresDaunt},
+            new(){Pwrs.PresAddicted2U},
+            new(){Pwrs.PresEntrance, Pwrs.PresScaryface}
+        },
+        [Cfg.DiscProtean.Id] = new()
+        {
+            new(){Pwrs.ProtFeather, Pwrs.ProtRedEye},
+            new(){Pwrs.ProtToothNClaw, Pwrs.ProtMoldSelf},
+            new(){Pwrs.ProtDirtNap, Pwrs.ProtMoldOthers, Pwrs.ProtBooBleh},
+            new(){Pwrs.ProtFinalForm, Pwrs.ProtDruid}
+        },
+        [Cfg.DiscSorcery.Id] = new()
+        {
+            new(){Pwrs.SorcAcidBlood, Pwrs.SorcBloodyPresti}
+        },
+        [Cfg.DiscAlchemy.Id] = new()
+        {
+            new(){Pwrs.AlchTelekinesis},
+            new(){Pwrs.AlchCounterfeitL1},
+            new(){Pwrs.AlchCounterfeitL2, Pwrs.AlchNewYou}
+        }
+    };
+
+    public static readonly Dictionary<string, Tuple<V5Stat, int>> AmalgamReqs = new()
+    {
+        [Pwrs.AnimCarrierPigeon.Id] = new(DiscAuspex, 1),
+        [Pwrs.AnimSonOfSam.Id] = new(DiscDominate, 1),
+        [Pwrs.AnimHive.Id] = new(DiscObfuscate, 2),
+        [Pwrs.DomiDevotion.Id] = new(DiscFortitude, 1), // Errata; was Presence 1
+        [Pwrs.ObfuTrick.Id] = new(DiscPresence, 1),
+        [Pwrs.ObfuHallucination.Id] = new(DiscPresence, 2),
+        [Pwrs.PoteRage.Id] = new(DiscPresence, 3),
+        [Pwrs.ProtMoldSelf.Id] = new(DiscDominate, 2),
+        [Pwrs.ProtMoldOthers.Id] = new(DiscDominate, 2)
+        //[Pwrs.ProtFinalForm.Id] = new(DiscDominate.Id, 2)
+    };
+
+    // Dictionary, string -> List of Lists. This is done to accommodate weird prereq requirements
+    // like those of Messenger's Command (Animal Messenger AND (Compel OR Mesmerize)).
+    // Hopefull it doesn't get any more convoluted than that.
+    public static readonly Dictionary<string, List<List<V5Power>>> PowerPrereqs = new()
+    {
+        // And, then or; i.e. top level are all required, any item w/in top level list counts
+        [Pwrs.AnimSonOfSam.Id] = new()
+        {
+            new(){Pwrs.AnimCarrierPigeon},
+            new(){Pwrs.DomiCompel, Pwrs.DomiMesmerize}
+        },
+        [Pwrs.CeleMatrixDodge.Id] = new() { new() { Pwrs.CeleTwitch } },
+        [Pwrs.ObfuVanish.Id] = new() { new() { Pwrs.ObfuFade } },
+        [Pwrs.ProtMoldOthers.Id] = new() { new() { Pwrs.ProtMoldSelf } },
+        [Pwrs.ProtFinalForm.Id] = new() { new() { Pwrs.ProtMoldSelf } },
+        [Pwrs.ProtDruid.Id] = new() { new() { Pwrs.ProtBooBleh } },
+    };
+}
+
+public partial class V5Power
+{
+    public V5Stat AmalgStat
+    {
+        get => Cfg.AmalgamReqs.ContainsKey(Id) ? Cfg.AmalgamReqs[Id].Item1 : null;
+    }
+    public int AmalgStatReq
+    {
+        get => Cfg.AmalgamReqs.ContainsKey(Id) ? Cfg.AmalgamReqs[Id].Item2 : 0;
+    }
+    public List<List<V5Power>> PowerPrereqs
+    {
+        get => Cfg.PowerPrereqs.ContainsKey(Id) ? Cfg.PowerPrereqs[Id] : new();
+    }
+
+    public static Tuple<bool, List<POWER_PURCHASE_REQS>> CanBePurchased(V5Power power, V5Entity buyer, bool assumePreRankUp = true)
+    {
+        List<POWER_PURCHASE_REQS> disqualifiers = new();
+        int buyerStatRank = buyer.GetStatOrZero(power.StatId);
+        if (buyerStatRank < power.Rank - 1 || (!assumePreRankUp && buyerStatRank < power.Rank))
+        {
+            disqualifiers.Add(POWER_PURCHASE_REQS.RANK);
+        }
+        if (buyer.UnspentXp < V5StatBlock.RankUpXpRequired(power.StatId, buyer))
+        {
+            disqualifiers.Add(POWER_PURCHASE_REQS.XP);
+        }
+        if (power.AmalgStat is not null)
+        {
+            int buyerAmalgStatRank = buyer.GetStatOrZero(power.AmalgStat.Id);
+            if (buyerAmalgStatRank < power.AmalgStatReq)
+            {
+                disqualifiers.Add(POWER_PURCHASE_REQS.AMALG_RANK);
+            }
+        }
+        foreach (List<V5Power> prereqPowerOptSet in power.PowerPrereqs)
+        {
+            bool hasAnyPower = false;
+            foreach (V5Power powerOpt in prereqPowerOptSet)
+            {
+                if (buyer.HasPower(powerOpt))
+                {
+                    hasAnyPower = true;
+                }
+            }
+            if (!hasAnyPower)
+            {
+                disqualifiers.Add(POWER_PURCHASE_REQS.POWER_PREREQ);
+            }
+        }
+        // Other disqualifiers, power specific perhaps?
+        return new(disqualifiers.Count > 0, disqualifiers);
     }
 }
