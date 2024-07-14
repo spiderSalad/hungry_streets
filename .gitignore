@@ -20,6 +20,7 @@ images/
 
 # Miscellaneous
 addons/tests/
+temp/
 notes.txt
 latest_commit.txt
 trash.txt

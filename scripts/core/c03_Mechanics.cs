@@ -659,6 +659,24 @@ public static partial class V5PoolParser
             OriginalPool = pool; Tokens = new(tokens);
         }
 
+        public bool AnyTokenHasError()
+        {
+            for (int i = 0; i < Tokens.Count; i++)
+            {
+                var parseMethod = Tokens[i].ParseMethod;
+                switch (parseMethod)
+                {
+                    case TokenParseMethod.FAILED_LOOKUP_INVALID_STAT:
+                        return true;
+                    case TokenParseMethod.FAILED_LOOKUP_STAT_NOT_FOUND_IN_ACTOR:
+                        return true;
+                    case TokenParseMethod.FAILED_PARSE_UNKNOWN_CAUSE:
+                        return true;
+                }
+            }
+            return false;
+        }
+
         public override string ToString()
         {
             string toStr = $"[ {Total} <= ";
@@ -762,7 +780,8 @@ public partial class Tracker
     public V5Entity Owner { get; init; }
     public int Boxes
     {
-        get {
+        get
+        {
             switch (TrackerType)
             {
                 case TRACKER_TYPE.HEALTH:
@@ -824,6 +843,9 @@ public partial class Tracker
             AggDamage++;
         }
     }
+
+    public void SetAggDamage(int amount) { AggDamage = amount; }
+    public void SetSpfDamage(int amount) { SpfDamage = amount; }
 
     public void TakeDamage(int amount, DMG_TYPE type, V5Entity source = null)
     {

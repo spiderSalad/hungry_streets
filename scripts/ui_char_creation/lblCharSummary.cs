@@ -1,33 +1,23 @@
 using Godot;
 using System;
 
-public partial class lblCharSummary : RichTextLabel
+public partial class lblCharSummary : RichTextReadout
 {
-    // Called when the node enters the scene tree for the first time.
-    public override void _Ready()
-    {
-        this.AddToGroup($"{Cfg.GROUP_NAMES.CCUI_FORM_DISPLAYS}");
-        this.AddToGroup($"{Cfg.GROUP_NAMES.OWUI_DISPLAYS}");
-    }
-
-    // Called every frame. 'delta' is the elapsed time since the previous frame.
-    public override void _Process(double delta)
-    {
-    }
-
     public void CharCreationUpdate(PlayerChar currentChar)
     {
-        this.Text = GetCharReadout(currentChar);
+        UpdateText(GetCharReadout(currentChar));
     }
 
     public string GetCharReadout(PlayerChar currentChar)
     {
         string charReadout = "", lb = "\n\n";
         PronounSet prns = currentChar.Pns;
-        string pssv = prns.HerHisTheir;
+        string pssv = prns.HerHisTheir.Capitalize();
         charReadout += $" --- Character Summary --- {lb}";
-        charReadout += $"{pssv} name: {currentChar.Name}{lb}";
-        charReadout += $"{pssv} occupation: {currentChar.Background.Name}{lb}";
+        charReadout += $"Name: {currentChar.Name}{lb}";
+        charReadout += $"Background: {currentChar.Background.Name}{lb}";
+        charReadout += $"{currentChar?.Block}\n";
+        charReadout += $"{currentChar.Hp}\n{currentChar.Will}\n";
         charReadout += $"etc, etc, todo...";
         if (Cfg.DEV_MODE)
         {

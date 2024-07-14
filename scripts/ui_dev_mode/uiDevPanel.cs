@@ -1,8 +1,6 @@
 using System;
 using Godot;
 
-// Links to Utils functions?
-
 public partial class uiDevPanel : Control
 {
     private bool _initialized = false;
@@ -22,20 +20,17 @@ public partial class uiDevPanel : Control
     [Export] private RichTextReadout _rollReadout;
     [Export] private Godot.Button _btnWillRerollWin;
     [Export] private Godot.Button _btnWillRerollRestrain;
-    [ExportGroup("")]
+
+    [ExportGroup("SaveLoadForm")]
+    [Export] private Label _saveStateLabel;
+    [Export] private LineEdit _inputSaveFileName;
+    [Export] private Button _btnSaveTo;
+    [Export] private LineEdit _inputLoadFileName;
+    [Export] private Button _btnLoadFrom;
+
+    [ExportGroup("")] // Can I only use this to break out once?
 
     private string _dicePool1 = "";
-
-    [Signal]
-    public delegate void FormTextInputEventHandler(Cfg.UI_KEY source, string text);
-    [Signal]
-    public delegate void FormSelectionEventHandler(string source, long selectionIndex);
-    [Signal]
-    public delegate void FormSubmitEventHandler(Cfg.UI_KEY source);
-    [Signal]
-    public delegate void CharacterUpdateEventHandler(string opt, Variant val);
-
-    public bool Initialized { get => _initialized; }
 
     private V5Entity _activeRoller;
     public V5Roll LastActiveRoll { get; private set; }
@@ -44,6 +39,17 @@ public partial class uiDevPanel : Control
 
     public V5Contest LastTest { get; private set; }
     public V5Contest LastContest { get; private set; }
+
+    [Signal] public delegate void FormTextInputEventHandler(Cfg.UI_KEY source, string text);
+    [Signal] public delegate void FormSelectionEventHandler(string source, long selectionIndex);
+    [Signal] public delegate void FormSubmitEventHandler(Cfg.UI_KEY source);
+    [Signal] public delegate void PcUpdateEventHandler(Cfg.UI_KEY source, PlayerChar pc);
+    [Signal] public delegate void GameStateLoadedEventHandler();
+    [Signal] public delegate void GameStateSavedEventHandler();
+
+    private bool mostRecentSaveSignalWasSave = false;
+
+    public bool Initialized { get => _initialized; }
 
     public uiDevPanel()
     {
@@ -66,6 +72,8 @@ public partial class uiDevPanel : Control
         }
         gm = GetNode<GameManager>(Cfg.NODEPATH_ABS_GAMEMANAGER);
         gm.DevPanel = this;
+        gm.Connect(SignalName.GameStateLoaded, Godot.Callable.From(() => OnGameLoaded()));
+        gm.Connect(SignalName.GameStateSaved, Godot.Callable.From(() => OnGameSaved()));
 
         DpuiInputs = this.GetTree().GetNodesInGroup($"{Cfg.GROUP_NAMES.DPUI_INPUTS}");
         foreach (Node node in DpuiInputs)
@@ -97,8 +105,10 @@ public partial class uiDevPanel : Control
         var allEnts = V5Entity.GetAllEntities();
         for (int i = 0; i < allEnts.Count; i++)
         {
-            GD.Print($"{i:00}: {allEnts[i]}");
+            //GD.Print($"{i:00}: {allEnts[i]}");
         }
+
+        UpdateAllFormDisplays();
     }
 
     // Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -120,26 +130,30 @@ public partial class uiDevPanel : Control
 
     public void UpdateAllFormDisplays()
     {
+        UpdateFormDiceRolls();
+        UpdateFormSaveLoad();
+    }
+
+    public void UpdateFormDiceRolls()
+    {
         // TODO: figure out how to get this in MethodName or something.
         // GetTree().CallGroup(
         //     $"{Cfg.GROUP_NAMES.DPUI_DISPLAYS}", "ShowDiceTestResults", LastActiveRoll.ToString()
         // );
-        if (LastReactingRoll is not null && LastReactingRoll is not default(V5Roll))
+        if (LastReactingRoll != default)
         {
             _rollReadout.UpdateText($"{LastContest}");
             _rollReadout.TooltipText =
                 $"{LastActiveRoll.UnfStr()}\n vs \n{LastReactingRoll.UnfStr()}";
         }
-        else if (LastActiveRoll is not null && LastActiveRoll is not default(V5Roll))
+        else if (LastActiveRoll != default)
         {
             _rollReadout.UpdateText($"{LastTest}");
             _rollReadout.TooltipText = $"{LastActiveRoll.UnfStr()}";
         }
         else
         {
-            throw new ArgumentNullException(
-                "Missing both active and reacting V5Roll objects! This shouldn't happen."
-            );
+            GD.Print("Neither \"Last Roll\" object present; dice form update ends here."); return;
         }
 
         if (LastActiveRoll.CanReroll)
@@ -153,14 +167,54 @@ public partial class uiDevPanel : Control
             _btnWillRerollRestrain.Disabled = true;
         }
 
-        if (LastActiveRoll.Actor is V5Entity ent1)
+        if (LastActiveRoll.Actor is PlayerChar pc1)
         {
-            ent1.EmitSignal(SignalName.CharacterUpdate, "dicerolls", "actor");
+            // pc1.EmitSignal(SignalName.PcUpdate, (int)Cfg.UI_KEY.ROLL_ENT_UPDATE, pc1);
+            gm.SignalPcUpdate(Cfg.UI_KEY.ROLL_ENT_UPDATE, pc1);
+
         }
-        if (LastReactingRoll is not default(V5Roll) && LastReactingRoll.Actor is V5Entity ent2)
+        else if (LastActiveRoll.Actor is V5Entity ent1)
         {
-            ent2.EmitSignal(SignalName.CharacterUpdate, "dicerolls", "reactor");
+            gm.SignalEntityUpdate(Cfg.UI_KEY.ROLL_ENT_UPDATE, ent1);
         }
+
+        if (LastReactingRoll != default)
+        {
+            if (LastReactingRoll.Actor is PlayerChar pc2)
+            {
+                // pc2.EmitSignal(SignalName.PcUpdate, (int)Cfg.UI_KEY.ROLL_ENT_UPDATE, pc2);
+                gm.SignalPcUpdate(Cfg.UI_KEY.ROLL_ENT_UPDATE, pc2);
+            }
+            else if (LastReactingRoll.Actor is V5Entity ent2)
+            {
+                gm.SignalEntityUpdate(Cfg.UI_KEY.ROLL_ENT_UPDATE, ent2);
+            }
+        }
+    }
+
+    public void OnGameLoaded()
+    {
+        GD.Print($"Dpui: Received signal indicating loaded state '{gm.PresentState.Id}'");
+        mostRecentSaveSignalWasSave = false;
+        UpdateFormSaveLoad();
+    }
+
+    public void OnGameSaved()
+    {
+        GD.Print($"Dpui: Received signal indicating saved state '{gm.PresentState.Id}'");
+        mostRecentSaveSignalWasSave = true;
+        UpdateFormSaveLoad();
+    }
+
+    public void UpdateFormSaveLoad()
+    {
+        string newText = "Current Save ";
+        newText += mostRecentSaveSignalWasSave ? "(Most recent save)" : "(Most recent load)";
+        newText += $":\n'{gm.PresentState.Id}',\nfrom '";
+        newText += mostRecentSaveSignalWasSave ?
+                $"{gm.PresentState.PathLastSavedTo}" : $"{gm.PresentState.PathLastLoadedFrom}";
+        newText += "')";
+        _saveStateLabel.Text = newText;
     }
 
     public void DpuiTextInput(Cfg.UI_KEY key, string text)
@@ -195,6 +249,8 @@ public partial class uiDevPanel : Control
 
     public void DpuiSubmit(Cfg.UI_KEY key)
     {
+        Error err;
+
         switch (key)
         {
             case Cfg.UI_KEY.DICE_TEST_1_TEST:
@@ -213,6 +269,20 @@ public partial class uiDevPanel : Control
                 audioplayer.PlaySound(audioplayer.soundDiceMany);
                 RunDiceTestType1x(true);
                 break;
+            case Cfg.UI_KEY.LOAD_GAME_FROM_PATH:
+                err = gm.LoadGame(_inputLoadFileName.Text);
+                if (err == Error.Ok)
+                {
+                    audioplayer.PlaySound(audioplayer.soundConfirm1);
+                }
+                break;
+            case Cfg.UI_KEY.SAVE_GAME_TO_PATH:
+                err = gm.SaveGame(_inputSaveFileName.Text);
+                if (err == Error.Ok)
+                {
+                    audioplayer.PlaySound(audioplayer.soundConfirm1);
+                }
+                break;
             default:
                 GD.Print($"Unrecognized button press/form submit; source = {key}");
                 break;
@@ -230,15 +300,15 @@ public partial class uiDevPanel : Control
         }
         GD.Print($"Evaluated dice pool: {totalDicePool}");
         LastActiveRoll = new V5Roll(
-            gm.playerchar, totalDicePool, true, hungerOverride: (int)_activeHungerOverride.Value
+            gm.ThePc, totalDicePool, true, hungerOverride: (int)_activeHungerOverride.Value
         );
-        UpdateAllFormDisplays();
+        UpdateFormDiceRolls();
     }
 
     public void RunDiceTestType1x(bool isContest)
     {
         string dicePoolStr = _dicePoolInput1.Text;
-        V5Entity actor = V5Entity.GetEntityFromList(_actorSelection.Selected, gm.playerchar);
+        V5Entity actor = V5Entity.GetEntityFromList(_actorSelection.Selected, gm.ThePc);
         var totalDicePool = V5PoolParser.ParsePoolText(dicePoolStr, actor) ??
             throw new FormatException($"Couldn't parse \"{dicePoolStr}\" to an integer.");
 
@@ -249,7 +319,17 @@ public partial class uiDevPanel : Control
             GD.Print($" ----> Actor: {actor}, Reactor: {reactor}");
             var enemyDicePool = V5PoolParser.ParsePoolText(oppDicePoolStr, reactor) ??
                 throw new FormatException("Couldn't parse \"{dicePoolStr}\" to an integer.");
-            GD.Print($"\n - Contest, pool of {totalDicePool} vs opp pool {enemyDicePool}\n");
+
+            string msg = $"\n - Contest, pool of {totalDicePool} vs opp pool {enemyDicePool}\n";
+            if (totalDicePool.AnyTokenHasError() || enemyDicePool.AnyTokenHasError())
+            {
+                GD.PrintErr(msg);
+            }
+            else
+            {
+                GD.Print(msg);
+            }
+
             LastContest = V5Contest.Contest(
                 totalDicePool, actor, true, enemyDicePool, reactor, true,
                 actorHungerOverride: (int)_activeHungerOverride.Value,
@@ -262,7 +342,15 @@ public partial class uiDevPanel : Control
         {
             int difficulty = (int)_testDiffInput.Value;
             GD.Print($" ----> Actor: {actor}");
-            GD.Print($"\n - Test, pool of {totalDicePool} vs flat diff {difficulty}\n");
+            string msg = $"\n - Test, pool of {totalDicePool} vs flat diff {difficulty}\n";
+            if (totalDicePool.AnyTokenHasError())
+            {
+                GD.PrintErr(msg);
+            }
+            else
+            {
+                GD.Print(msg);
+            }
             LastTest = V5Contest.Test(
                 totalDicePool, actor, difficulty, true,
                 actorHungerOverride: (int)_activeHungerOverride.Value, // TODO: check checkbox here
@@ -270,7 +358,7 @@ public partial class uiDevPanel : Control
             );
             LastActiveRoll = LastTest.ActorRoll; LastReactingRoll = null;
         }
-        UpdateAllFormDisplays();
+        UpdateFormDiceRolls();
     }
 
     public void RunDiceTestType2(bool will2Win, bool will2Restrain)
@@ -279,6 +367,6 @@ public partial class uiDevPanel : Control
         LastActiveRoll.Reroll(will2Win, will2Restrain);
         LastTest = LastTest is not null ? LastTest.GetOutcome() : LastTest;
         LastContest = LastContest is not null ? LastContest.GetOutcome() : LastContest;
-        UpdateAllFormDisplays();
+        UpdateFormDiceRolls();
     }
 }

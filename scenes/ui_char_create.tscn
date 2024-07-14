@@ -250,6 +250,7 @@ layout_mode = 2
 layout_mode = 2
 fit_content = true
 script = ExtResource("9_ba5is")
+NodeGroups = Array[int]([3])
 
 [node name="btnCcuiFinishExit" type="Button" parent="panelcontCcuiMain/vboxContentOuter/tabcontCcuiMain/Finish and Start/vboxCcuiContent_3"]
 layout_mode = 2

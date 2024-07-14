@@ -10,9 +10,8 @@ public partial class lblBackgroundInfo : RichTextLabel
     }
 
     // Called every frame. 'delta' is the elapsed time since the previous frame.
-    public override void _Process(double delta)
-    {
-    }
+    public override void _Process(double delta){}
+
     public void CharCreationUpdate(PlayerChar currentChar)
     {
         GD.Print($"{GetClass()}: Current Background is '{currentChar.Background.Name}'");
@@ -29,7 +28,14 @@ public partial class lblBackgroundInfo : RichTextLabel
         }
         this.Text += $"{currentChar.Pns.ShesHesTheyre.Capitalize()} that ";
         // this.Text = charName == "Unnamed" ? $"{charName}" : $"{charName}, the";
-        this.Text += $"{currentChar.Background.Name}, right?\"";
-        this.Text += $"\n\n{currentChar.Background.Desc}";
+        if (currentChar.Background != Cfg.BgEmpty)
+        {
+            this.Text += $"{currentChar.Background.Name}, right?\"";
+            this.Text += $"\n\n{currentChar.Background.Desc}";
+        }
+        else
+        {
+            Text += "one lick, right?";
+        }
     }
 }

@@ -7,10 +7,8 @@ public partial class uiOverworldRoot : Control
 	private Godot.Collections.Array<Node> OwuiDisplays;
 	private AudioHandler audioplayer;
 
-	[Signal]
-	public delegate void UiButtonPressEventHandler(Cfg.UI_KEY key, string opt);
-	[Signal]
-	public delegate void CharacterUpdateEventHandler(string opt, Variant val);
+	[Signal] public delegate void UiButtonPressEventHandler(Cfg.UI_KEY key, string opt);
+	[Signal] public delegate void PcUpdateEventHandler(Cfg.UI_KEY source, PlayerChar pc);
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
@@ -29,10 +27,10 @@ public partial class uiOverworldRoot : Control
 		}
 
 		OwuiDisplays = GetTree().GetNodesInGroup($"{Cfg.GROUP_NAMES.OWUI_DISPLAYS}");
-		if (gm.playerchar is not null)
+		if (gm.ThePc is not null)
 		{
 			GetTree().CallGroup(
-				$"{Cfg.GROUP_NAMES.OWUI_DISPLAYS}", "CharCreationUpdate", gm.playerchar
+				$"{Cfg.GROUP_NAMES.OWUI_DISPLAYS}", "CharCreationUpdate", gm.ThePc
 			);
 		}
 		else
@@ -40,8 +38,8 @@ public partial class uiOverworldRoot : Control
 			GD.PrintErr($"gm.playerchar ({typeof(PlayerChar)}) is unset/null.");
 		}
 
-		clbk = Godot.Callable.From((string opt, Variant val) => this.OnCharacterUpdate(opt, val));
-		gm.playerchar.Connect(SignalName.CharacterUpdate, clbk);
+		clbk = Godot.Callable.From((Cfg.UI_KEY src, PlayerChar pc) => this.OnPcUpdate(src, pc));
+		gm.Connect(SignalName.PcUpdate, clbk);
 
 		audioplayer = GetNode<AudioHandler>("/root/AudioHandler");
 	}
@@ -51,11 +49,11 @@ public partial class uiOverworldRoot : Control
 	{
 	}
 
-	public void OnCharacterUpdate(string opt, Variant val)
+	public void OnPcUpdate(Cfg.UI_KEY source, PlayerChar pc)
 	{
-		GD.Print($"{GetType()}.OnCharacterUpdate(): Received opt = {opt} and newValue = {val}.");
+		GD.Print($"Owui.OnPcUpdate(): Received source = {source}, Pc = {pc}");
 		GetTree().CallGroup(
-			$"{Cfg.GROUP_NAMES.OWUI_DISPLAYS}", "CharCreationUpdate", gm.playerchar
+			$"{Cfg.GROUP_NAMES.OWUI_DISPLAYS}", "CharCreationUpdate", gm.ThePc
 		);
 	}
 

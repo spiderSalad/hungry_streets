@@ -3,13 +3,19 @@ using Godot;
 
 public static partial class Utils
 {
-    public static void PopulateStatDict(V5Stat[] statArray,
-        System.Collections.Generic.Dictionary<string, V5Stat> statDict)
+    public static void PopulateStatDict(
+        V5Stat[] statArray, System.Collections.Generic.Dictionary<string, V5Stat> statDict
+    )
     {
         foreach (V5Stat stat in statArray)
         {
             statDict.Add(stat.Id, stat);
         }
+    }
+
+    public static string GetFullSavePath(string fileName)
+    {
+        return $"{Cfg.PATH_SAVE_STATES}{fileName}{Cfg.PATH_SAVE_EXT}";
     }
 
     public static string SanitizeStr(string input) // TODO: Implement this.
@@ -153,10 +159,6 @@ public static partial class Utils
             foreach (var NodeGroup in groups)
             {
                 n.AddToGroup($"{NodeGroup}");
-                if (Cfg.DEV_MODE)
-                {
-                    GD.Print($"Integral value of {NodeGroup} is {(int)NodeGroup}");
-                }
             }
         }
         catch (Exception ex)

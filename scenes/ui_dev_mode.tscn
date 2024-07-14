@@ -6,7 +6,7 @@
 [ext_resource type="Script" path="res://scripts/global/RichTextReadout.cs" id="5_ni8rx"]
 [ext_resource type="Script" path="res://scripts/global/BtnFormSubmit.cs" id="7_du0m1"]
 
-[node name="uiDevPanel" type="Control" node_paths=PackedStringArray("_actorSelection", "_dicePoolInput1", "_activeHungerOverride", "_reactingHungerOverride", "_testDiffInput", "_reactorSelection", "_dicePoolInput2", "_rollReadout", "_btnWillRerollWin", "_btnWillRerollRestrain")]
+[node name="uiDevPanel" type="Control" node_paths=PackedStringArray("_actorSelection", "_dicePoolInput1", "_activeHungerOverride", "_reactingHungerOverride", "_testDiffInput", "_reactorSelection", "_dicePoolInput2", "_rollReadout", "_btnWillRerollWin", "_btnWillRerollRestrain", "_saveStateLabel", "_inputSaveFileName", "_btnSaveTo", "_inputLoadFileName", "_btnLoadFrom")]
 layout_mode = 3
 anchors_preset = 1
 anchor_left = 1.0
@@ -23,6 +23,11 @@ _dicePoolInput2 = NodePath("PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice
 _rollReadout = NodePath("PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/lblRtRollReadout")
 _btnWillRerollWin = NodePath("PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxRerollBtns/btnReroll2Win")
 _btnWillRerollRestrain = NodePath("PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxRerollBtns/btnReroll2Restrain")
+_saveStateLabel = NodePath("PanelContainer/vboxContentOuter/tabcontDpuiMain/Save and Load Tests/vboxContentMain/lblCurrentSaveState")
+_inputSaveFileName = NodePath("PanelContainer/vboxContentOuter/tabcontDpuiMain/Save and Load Tests/vboxContentMain/hboxSave/inputSaveWhich")
+_btnSaveTo = NodePath("PanelContainer/vboxContentOuter/tabcontDpuiMain/Save and Load Tests/vboxContentMain/hboxSave/btnSaveStateTo")
+_inputLoadFileName = NodePath("PanelContainer/vboxContentOuter/tabcontDpuiMain/Save and Load Tests/vboxContentMain/hboxLoad/inputLoadWhich")
+_btnLoadFrom = NodePath("PanelContainer/vboxContentOuter/tabcontDpuiMain/Save and Load Tests/vboxContentMain/hboxLoad/btnLoadStateFrom")
 
 [node name="PanelContainer" type="PanelContainer" parent="."]
 layout_mode = 1
@@ -212,6 +217,7 @@ text = "Outcome"
 horizontal_alignment = 1
 
 [node name="lblRtRollReadout" type="RichTextLabel" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
+clip_contents = false
 custom_minimum_size = Vector2(350, 60)
 layout_mode = 2
 theme_override_font_sizes/normal_font_size = 16
@@ -225,13 +231,51 @@ fit_content = true
 script = ExtResource("5_ni8rx")
 NodeGroups = Array[int]([1, 6])
 
-[node name="Other Stuff" type="MarginContainer" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain"]
+[node name="Save and Load Tests" type="MarginContainer" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain"]
 visible = false
 layout_mode = 2
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_top = 15
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 15
+
+[node name="vboxContentMain" type="VBoxContainer" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Save and Load Tests"]
+layout_mode = 2
+
+[node name="lblCurrentSaveState" type="Label" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Save and Load Tests/vboxContentMain"]
+custom_minimum_size = Vector2(350, 0)
+layout_mode = 2
+text = "Current Save: None"
+
+[node name="hboxLoad" type="HBoxContainer" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Save and Load Tests/vboxContentMain"]
+layout_mode = 2
+
+[node name="inputLoadWhich" type="LineEdit" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Save and Load Tests/vboxContentMain/hboxLoad"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 3.0
+
+[node name="btnLoadStateFrom" type="Button" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Save and Load Tests/vboxContentMain/hboxLoad"]
+layout_mode = 2
+text = "<- Load From"
+script = ExtResource("7_du0m1")
+NodeGroups = Array[int]([0])
+formSubmitUiKey = 11
+
+[node name="hboxSave" type="HBoxContainer" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Save and Load Tests/vboxContentMain"]
+layout_mode = 2
+
+[node name="inputSaveWhich" type="LineEdit" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Save and Load Tests/vboxContentMain/hboxSave"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 3.0
+
+[node name="btnSaveStateTo" type="Button" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Save and Load Tests/vboxContentMain/hboxSave"]
+layout_mode = 2
+text = "<- Save To"
+script = ExtResource("7_du0m1")
+NodeGroups = Array[int]([0])
+formSubmitUiKey = 12
 
 [node name="Don\'t Even Ask" type="MarginContainer" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain"]
 visible = false

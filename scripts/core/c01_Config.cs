@@ -6,6 +6,7 @@ using Godot;
 public static partial class Cfg
 {
     public const bool DEV_MODE = true; // TODO: Find a way to export this/move it out of here
+    public const string DT_FORMAT_SAVE = "yyyy-MM-dd HH:mm:ss";
 
     public const int ATTR_MULT = 5;
     public const int SKILL_MULT = 3;
@@ -60,15 +61,27 @@ public static partial class Cfg
         PRONOUN_SELECT,
         BACKGROUND_SELECT,
         SELECT_ACTIVE_ENTITY_ALL,
-        SELECT_REACTING_ENTITY_ALL
+        SELECT_REACTING_ENTITY_ALL,
+        LOAD_GAME_FROM_PATH,
+        SAVE_GAME_TO_PATH,
+        ROLL_ENT_UPDATE,
+        LOADED_GAME_ENT_UPDATE
     }
 
     public const string NODEPATH_ABS_GAMEMANAGER = "/root/GameManager";
 
+    public const string PATH_SAVE_STATES = "res://temp/";
+    public const string FILENAME_RECENT_TEMP = "MostRecent";
+    public const string PATH_SAVE_EXT = ".tres";
     public const string PATH_SOUND = "res://audio/sounds/";
 }
 
-public class V5Stat
+public interface IDentifiable
+{
+    public string Id { get; init; }
+}
+
+public class V5Stat : IDentifiable
 {
     public V5Stat(string id, string name, int min = Cfg.DOT_MIN, string desc = "...")
     {
@@ -118,8 +131,7 @@ public partial class Cfg
     public readonly static V5Stat[] Attrs = {
         AttrStr, AttrDex, AttrSta, AttrCha, AttrMan, AttrCom, AttrInt, AttrWit, AttrRes
     };
-    public readonly static System.Collections.Generic.Dictionary<string, V5Stat> AttrsDict =
-        new System.Collections.Generic.Dictionary<string, V5Stat>();
+    public readonly static System.Collections.Generic.Dictionary<string, V5Stat> AttrsDict = new();
 
     public static V5Stat SkillAthl = new V5Stat("athl", "Athletics",
         desc: "Experience, form, and training for coordinated physical exertion of various kinds.");
@@ -165,8 +177,7 @@ public partial class Cfg
         SkillAnim, SkillDipl, SkillInti, SkillIntr, SkillPerf, SkillStre,
         SkillAcad, SkillMedi, SkillObse, SkillOccu, SkillPrax, SkillTech
     };
-    public readonly static System.Collections.Generic.Dictionary<string, V5Stat> SkillsDict =
-        new System.Collections.Generic.Dictionary<string, V5Stat>();
+    public readonly static System.Collections.Generic.Dictionary<string, V5Stat> SkillsDict = new();
 
     public static V5Stat DiscAnimalism = new V5Stat("animalism", "Animalism",
         desc: "Communion with the Beast within - yours, and others'.");
@@ -186,21 +197,19 @@ public partial class Cfg
         DiscAnimalism, DiscAuspex, DiscCelerity, DiscDominate, DiscFortitude, DiscObfuscate,
         DiscOblivion, DiscPotence, DiscPresence, DiscProtean, DiscSorcery, DiscAlchemy
     };
-    public readonly static System.Collections.Generic.Dictionary<string, V5Stat> DisciplinesDict =
-        new System.Collections.Generic.Dictionary<string, V5Stat>();
+    public readonly static System.Collections.Generic.Dictionary<string, V5Stat> DisciplinesDict = new();
 
     public static V5Stat TraitLooks = new V5Stat("looks", "Looks");
 
     public readonly static V5Stat[] Backgrounds = { TraitLooks }; // TODO: Look (hehe) into this.
-    public readonly static System.Collections.Generic.Dictionary<string, V5Stat> BackgroundsDict =
-        new System.Collections.Generic.Dictionary<string, V5Stat>();
+    public readonly static System.Collections.Generic.Dictionary<string, V5Stat> BackgroundsDict = new();
 
     public static List<V5Stat> AllStats = new List<V5Stat>(
         Cfg.Attrs.Concat(Cfg.Skills).Concat(Cfg.Disciplines).Concat(Cfg.Backgrounds)
     );
 }
 
-public class V5StatBlock
+public partial class V5StatBlock : Godot.Resource
 {
     protected Godot.Collections.Dictionary<string, int> Bases;
     protected Godot.Collections.Dictionary<string, int> XpCounts;
@@ -217,7 +226,6 @@ public class V5StatBlock
 
     public V5StatBlock(Godot.Collections.Dictionary<string, int> bases)
     {
-        // GD.Print($"V5StatBlock Constructor - 2 - called, with bases dict:\n{bases}");
         SbId = $"StatBlock-type-2-Id-{++NumBlocksMade}";
         Bases = bases;
         XpCounts = new Godot.Collections.Dictionary<string, int>();
@@ -271,6 +279,10 @@ public class V5StatBlock
         }
         return false;
     }
+
+    // Should be used for bundling only.
+    public Godot.Collections.Dictionary<string, int> GetStatBasesDict() { return Bases; }
+    public Godot.Collections.Dictionary<string, int> GetStatXpCountsDict() { return XpCounts; }
 
     public Tuple<int?, int?> GetStatPair(string statId)
     {
@@ -419,23 +431,40 @@ public class V5StatBlock
 
     public override string ToString()
     {
-        string toStr = $"\n-- StatBlock ({SbId}) --\n";
-        foreach (V5Stat stat in Cfg.Attrs)
+        string toStr = "Attributes:\n", auxStr = "";
+        V5Stat stat; V5Stat[] attrs = Utils.Transpose1dGridArray<V5Stat>(Cfg.Attrs, 3);
+        for (int i = 0; i < attrs.Length; i++)
         {
-            toStr += $"{stat.Id}: {GetStatOrZero(stat.Id)},  ";
+            stat = attrs[i];
+            toStr += $"{stat.Id}: {GetStatOrZero(stat.Id)}";
+            toStr += i % 3 == 2 ? "\n" : ",  ";
         }
-        toStr += "\n";
-        foreach (V5Stat stat in Cfg.Skills)
+        V5Stat[] skills = Utils.Transpose1dGridArray<V5Stat>(Cfg.Skills, 6);
+        int statsAdded = 0;
+        for (int i = 0; i < skills.Length; i++)
         {
-            toStr += $"{stat.Id}: {GetStatOrZero(stat.Id)},  ";
+            stat = skills[i]; int statVal = GetStatOrZero(stat.Id);
+            if (statVal > 0)
+            {
+                auxStr += statsAdded > 0 ? ",  " : ""; statsAdded++;
+                auxStr += i > 0 && statsAdded % 3 == 0 ? "\n" : "";
+                auxStr += $"{stat.Id}: {statVal}";
+            }
         }
-        toStr += "\n";
-        foreach (V5Stat stat in Cfg.Disciplines)
+        toStr += statsAdded > 0 ? $"\nSkills:\n{auxStr}" : "";
+        auxStr = ""; statsAdded = 0;
+        for (int i = 0; i < Cfg.Disciplines.Length; i++)
         {
-            toStr += $"{stat.Id}: {GetStatOrZero(stat.Id)},  ";
+            stat = Cfg.Disciplines[i]; int statVal = GetStatOrZero(stat.Id);
+            if (statVal > 0)
+            {
+                auxStr += statsAdded > 0 ? ",  " : ""; statsAdded++;
+                auxStr += i > 0 && statsAdded % 3 == 2 ? "\n" : "";
+                auxStr += $"{stat.Id}: {statVal}";
+            }
         }
-        toStr += $"\n-- end ^StatBlock ({SbId}) --";
-        return toStr;
+        toStr += statsAdded > 0 ? $"\nDisciplines:\n{auxStr}" : "";
+        return $"{toStr}\n";
     }
 }
 

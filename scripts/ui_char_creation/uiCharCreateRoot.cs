@@ -9,13 +9,10 @@ public partial class uiCharCreateRoot : Control
     private Godot.Collections.Array<Node> CcuiFormInputs;
     private AudioHandler audioplayer;
 
-    [Signal]
-    public delegate void FormTextInputEventHandler(Cfg.UI_KEY source, string text);
-    [Signal]
-    public delegate void FormSelectionEventHandler(Cfg.UI_KEY source, long selectionIndex);
-    [Signal]
-    public delegate void FormSubmitEventHandler(Cfg.UI_KEY source);
-
+    [Signal] public delegate void FormTextInputEventHandler(Cfg.UI_KEY source, string text);
+    [Signal] public delegate void FormSelectionEventHandler(Cfg.UI_KEY source, long selectionIndex);
+    [Signal] public delegate void FormSubmitEventHandler(Cfg.UI_KEY source);
+    [Signal] public delegate void PcUpdateEventHandler(Cfg.UI_KEY source, PlayerChar pc);
     //public delegate void CharCreationUpdate(PlayerChar currentChar);
 
     public uiCharCreateRoot()
@@ -30,17 +27,26 @@ public partial class uiCharCreateRoot : Control
 
         DumpTestNodes();
         gm = GetNode<GameManager>(Cfg.NODEPATH_ABS_GAMEMANAGER);
-        if (gm.playerchar is default(PlayerChar))
+        if (gm.ThePc == default)
         {
-            characterToBe = new PlayerChar();
-            GD.Print($"{GetType()}._Ready(): Creating new character ({characterToBe}).");
+            if (gm.PresentState != default && gm.PresentState.PcDataBundle != default)
+            {
+                // characterToBe = gm.PresentState.Pc;
+                characterToBe = PlayerChar.BuildFromBundle(new PlayerChar(), gm.PresentState.PcDataBundle);
+                GD.Print($"{GetType()}._Ready(): Loading character from {gm.PresentState.Id}.");
+            }
+            else
+            {
+                characterToBe = new PlayerChar();
+                GD.Print($"{GetType()}._Ready(): Creating new character ({characterToBe}).");
+            }
         }
         else
         {
-            characterToBe = gm.playerchar;
+            characterToBe = gm.ThePc;
             GD.Print(
                 $"{GetType()}._Ready(): Picking up existing character "
-                + $"({gm.playerchar} should equal ({characterToBe}))."
+                + $"({gm.ThePc} should equal ({characterToBe}))."
             );
         }
         // characterToBe = gm.playerchar is default(PlayerChar) ? new PlayerChar() : gm.playerchar;
@@ -67,6 +73,11 @@ public partial class uiCharCreateRoot : Control
             }
         }
 
+        gm.Connect(
+            SignalName.PcUpdate,
+            Godot.Callable.From((Cfg.UI_KEY src, PlayerChar pc) => OnExternalCharUpdate(src, pc))
+        );
+
         UpdateAllFormDisplays();
         Godot.Collections.Array<Node> tabcons = this.FindChildren("tabcon*");
         foreach (Node node in tabcons)
@@ -90,6 +101,15 @@ public partial class uiCharCreateRoot : Control
         GetTree().CallGroup(
             $"{Cfg.GROUP_NAMES.CCUI_FORM_DISPLAYS}", "CharCreationUpdate", this.characterToBe
         );
+    }
+
+    public void OnExternalCharUpdate(Cfg.UI_KEY source, PlayerChar newPc)
+    {
+        GD.Print(
+            $"\n\nCcui: External character update triggered from '{source}':\n" +
+            $"Was working on: '{characterToBe}', now on '{newPc}'\n\n"
+        );
+        characterToBe = newPc;
     }
 
     public void CcuiTextInput(Cfg.UI_KEY key, string text)
@@ -133,15 +153,15 @@ public partial class uiCharCreateRoot : Control
                 Tuple<bool, string[]> validationResults = ValidateCharacter(characterToBe);
                 if (validationResults.Item1)
                 {
-                    if (gm.playerchar is default(PlayerChar))
+                    if (gm.ThePc is default(PlayerChar))
                     {
-                        gm.playerchar = characterToBe;
+                        gm.ThePc = characterToBe;
                     }
                     else
                     {
                         GD.Print(
                             "Existing player character updated. " +
-                            $"({gm.playerchar} should be the same as {characterToBe})"
+                            $"({gm.ThePc} should be the same as {characterToBe})"
                         );
                     }
                     gm.GoToNamedScene(Cfg.SCENE_OWUI);

@@ -65,6 +65,7 @@ layout_mode = 2
 size_flags_vertical = 3
 text = "your character be like:"
 script = ExtResource("2_10i11")
+NodeGroups = Array[int]([5])
 
 [node name="btnBack2CcuiTest" type="Button" parent="panelcontOwuiMain/vboxContentOuter_L1/HBoxContainer/VBoxContainer"]
 layout_mode = 2

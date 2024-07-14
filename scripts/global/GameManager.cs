@@ -2,9 +2,15 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.CompilerServices;
 
 public partial class GameManager : Node
 {
+    [Signal] public delegate void GameStateLoadedEventHandler();
+    [Signal] public delegate void GameStateSavedEventHandler();
+    [Signal] public delegate void PcUpdateEventHandler(Cfg.UI_KEY source, PlayerChar pc);
+    [Signal] public delegate void OtherEntUpdateEventHandler(Cfg.UI_KEY source, V5Entity newEnt);
+
     public static readonly Godot.Collections.Dictionary<string, string> SCENE_FILEPATHS = new()
     {
         [Cfg.SCENE_ROOT] = "res://scenes/test_game_root_2.tscn",
@@ -12,13 +18,16 @@ public partial class GameManager : Node
         [Cfg.SCENE_OWUI] = "res://scenes/ui_overworld.tscn"
     };
 
-    private PlayerChar _playerchar;
+    private PlayerChar _playerChar;
     private readonly List<PlayerChar> _allCreatedChars = new();
     private uiDevPanel _devPanel;
+    private string _testSavePath = "res://temp/testsave04.tres";
 
     public readonly Godot.Collections.Dictionary<string, PlayerChar> DEMO_CHARS = new();
     public Godot.RandomNumberGenerator Rng { get; private set; }
     public Node CurrentScene { get; private set; }
+    public GameState PreviousState { get; private set; }
+    public GameState PresentState { get; private set; }
     public uiDevPanel DevPanel
     {
         get => _devPanel;
@@ -33,21 +42,31 @@ public partial class GameManager : Node
             _devPanel = value;
         }
     }
-    public PlayerChar playerchar
+    public PlayerChar ThePc
     {
-        get => _playerchar;
+        get => _playerChar;
         set
         {
-            if (_playerchar is default(PlayerChar))
+            if (_playerChar == value)
             {
-                GD.Print($"{GetType()}:: PlayerChar set for the first time! ({value})");
+                GD.PrintErr($"GM:: PlayerChars {_playerChar} and {value} are identical!");
+                return;
+            }
+            if (_playerChar == default)
+            {
+                GD.Print($"GM:: PlayerChar set for the first time to {value}.");
             }
             else
             {
-                GD.Print($"{GetType()}:: (new) PlayerChar set! ({_playerchar} -> {value}");
+                GD.Print($"GM:: (new) PlayerChar set. ({_playerChar} -> {value}");
             }
-            _playerchar = value;
-            _allCreatedChars.Add(_playerchar);
+            _playerChar = value;
+            if (PresentState != default)
+            {
+                GD.Print($"GM: Added new Pc '{_playerChar}' to save state.");
+                PresentState.PcDataBundle = _playerChar.Bundle();
+            }
+            _allCreatedChars.Add(_playerChar);
         }
     }
 
@@ -61,10 +80,11 @@ public partial class GameManager : Node
         Utils.PopulateStatDict(Cfg.Attrs, Cfg.AttrsDict);
         Utils.PopulateStatDict(Cfg.Skills, Cfg.SkillsDict);
 
-        Rng = Utils.SetRng(new RandomNumberGenerator(), true);
+        foreach (PronounSet pns in Cfg.PronounSetsAll) { Cfg.PronounSetsDict.Add(pns.Id, pns); }
 
         foreach (CharBackground charbg in Cfg.PcBackgrounds)
         {
+            Cfg.PcBgsDict.Add(charbg.Name, charbg);
             DEMO_CHARS.Add(charbg.Name, new PlayerChar()
             {
                 Name = $"Fk{charbg.Name[..7]}",
@@ -72,6 +92,7 @@ public partial class GameManager : Node
             });
         }
 
+        Rng = Utils.SetRng(new RandomNumberGenerator(), true);
         ValidateGameParams();
     }
 
@@ -87,11 +108,11 @@ public partial class GameManager : Node
                 List<V5Power> powersAtRank = discTree[i];
                 foreach (V5Power power in powersAtRank)
                 {
-                    if (power.Rank != i+1)
+                    if (power.Rank != i + 1)
                     {
                         throw new ArgumentOutOfRangeException(
                             "ValidateGameParams(): " +
-                            $"Power '{power.Name}' has wrong rank ({power.Rank}, should be {i+1})!"
+                            $"Power '{power.Name}' has wrong rank ({power.Rank}, should be {i + 1})!"
                         );
                     }
                     if (power.StatId != discId)
@@ -115,6 +136,86 @@ public partial class GameManager : Node
         // auto-loaded node and they come first (presumably that means this _Ready() fires
         // before other nodes are added to root? Unsure.)
         GD.Print("Game manager ready.");
+        //TempCheckForGameStates();
+        LoadGame(Cfg.FILENAME_RECENT_TEMP, true); // Auto-attempt an auto-load.
+    }
+
+    public Godot.Error LoadGame(string path, bool autoLoad = false, bool createFallbackState = true)
+    {
+        string fullPath = Utils.GetFullSavePath(path);
+        GD.Print(
+            autoLoad ?
+            $"\nGM: Auto-loading...\n" : $"\n\nGM: Loading game at '{fullPath}'...\n\n"
+        );
+        Error result;
+        PreviousState ??= autoLoad ? PreviousState : PresentState;
+        try
+        {
+            if (ResourceLoader.Exists(fullPath))
+            {
+                // TODO: Reflect loading/saving in UI
+                PresentState = GD.Load<GameState>(fullPath);
+                HandleLoadNewState(fullPath);
+                GD.Print($"\nGM: Successfully loaded from '{fullPath}'.\nState:\n{PresentState}\n");
+                if (!autoLoad)
+                {
+                    SaveGame(Cfg.FILENAME_RECENT_TEMP, true);
+                }
+                return Error.Ok;
+            }
+            else
+            {
+                GD.PrintErr($"GM: Failed to load; no Resource exists at '{fullPath}'!");
+                result = Error.FileNotFound;
+            }
+        }
+        catch (Exception ex)
+        {
+            GD.PrintErr($"GM: Failed to load from path '{fullPath}' due to:\n{ex}");
+            result = Error.Failed;
+        }
+        if (result != Error.Ok && createFallbackState && PresentState == default)
+        {
+            PresentState = new GameState();
+        }
+        return result;
+    }
+
+    public void HandleLoadNewState(string pathUsed)
+    {
+        GD.Print($"\nHandle load state: {PresentState.Id},\n\tfrom path '{pathUsed}'\n");
+        PresentState.OnLoad(pathUsed);
+        ThePc = PlayerChar.BuildFromBundle(new PlayerChar(), PresentState.PcDataBundle);
+        EmitSignal(SignalName.GameStateLoaded);
+        SignalPcUpdate(Cfg.UI_KEY.LOADED_GAME_ENT_UPDATE, ThePc);
+    }
+
+    public Godot.Error SaveGame(string path, bool overWriteTemp = false)
+    {
+        string fullPath = Utils.GetFullSavePath(path);
+        GD.Print($"\nGM: Saving current game to '{fullPath}'...\n");
+        CreateSaveFromCurrentState();
+        ResourceSaver.Save(PresentState, Utils.GetFullSavePath(Cfg.FILENAME_RECENT_TEMP));
+        Godot.Error err = ResourceSaver.Save(PresentState, fullPath);
+        if (err == Error.Ok)
+        {
+            if (!overWriteTemp)
+            {
+                PresentState.OnWrite(fullPath);
+                EmitSignal(SignalName.GameStateSaved);
+            }
+        }
+        else
+        {
+            GD.PrintErr($"GM: Save failed, with error code '{err}'.");
+        }
+        return err;
+    }
+
+    public void CreateSaveFromCurrentState()
+    {
+        PresentState ??= new();
+        PresentState.PcDataBundle = ThePc.Bundle();
     }
 
     public void GoToScene(string path)
@@ -152,5 +253,22 @@ public partial class GameManager : Node
         {
             DevPanel.MoveMeToEnd();
         }
+    }
+
+    public void SignalPcUpdate(Cfg.UI_KEY source, PlayerChar pc)
+    {
+        if (pc == ThePc)
+        {
+            EmitSignal(SignalName.PcUpdate, (int)source, ThePc);
+        }
+        else
+        {
+            GD.PrintErr($"GM: Won't broadcast update to '{pc}', as they're not ThePC('{ThePc}')");
+        }
+    }
+
+    public void SignalEntityUpdate(Cfg.UI_KEY source, V5Entity ent)
+    {
+        EmitSignal(SignalName.OtherEntUpdate, (int)source, ent);
     }
 }
