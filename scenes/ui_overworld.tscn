@@ -1,9 +1,15 @@
-[gd_scene load_steps=8 format=3 uid="uid://bsvfj1lucusgt"]
+[gd_scene load_steps=14 format=3 uid="uid://bsvfj1lucusgt"]
 
 [ext_resource type="Script" path="res://scripts/ui_overworld/uiOverworldRoot.cs" id="1_y1l82"]
 [ext_resource type="Script" path="res://scripts/ui_char_creation/lblCharSummary.cs" id="2_10i11"]
 [ext_resource type="Texture2D" uid="uid://bphniv67vsojp" path="res://images/backgrounds/bg_domain.jpg" id="2_a0ps1"]
+[ext_resource type="Script" path="res://scripts/custom_controls/TogglablePanel.cs" id="3_7ftdn"]
 [ext_resource type="Script" path="res://scripts/ui_overworld/btnBack2CcuiTest.cs" id="3_ildr5"]
+[ext_resource type="Texture2D" uid="uid://baa7yltle2xbi" path="res://images/gui/wod_circle_300x300_default.png" id="4_jnir6"]
+[ext_resource type="Texture2D" uid="uid://b7txdxf8km0x6" path="res://images/gui/wod_circle_300x300_pressed.png" id="5_v7lke"]
+[ext_resource type="Texture2D" uid="uid://qoc6moin33tm" path="res://images/gui/wod_circle_300x300_hover.png" id="6_fhcr3"]
+[ext_resource type="Texture2D" uid="uid://b6j1q56ya34s4" path="res://images/gui/wod_circle_300x300_disabled.png" id="7_18353"]
+[ext_resource type="Texture2D" uid="uid://ct5t5ndmx58hg" path="res://images/gui/wod_circle_300x300_focused.png" id="8_bphw2"]
 
 [sub_resource type="Gradient" id="Gradient_1sx6f"]
 
@@ -22,7 +28,15 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_y1l82")
 
-[node name="panelcontOwuiMain" type="PanelContainer" parent="."]
+[node name="togglableCharPanelControl" type="Control" parent="." node_paths=PackedStringArray("_toggleSwitch", "_panel")]
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("3_7ftdn")
+_toggleSwitch = NodePath("../panelOwuiOuter/vboxOwuiInner/panelOwuiContentMain/vboxOwuiSidePanel/HBoxContainer/vboxLeftControls/btnCharInfo")
+_panel = NodePath("../panelOwuiOuter/vboxOwuiInner/panelOwuiContentMain/vboxOwuiSidePanel/HBoxContainer/vboxCharPanel")
+
+[node name="panelOwuiOuter" type="PanelContainer" parent="."]
 custom_minimum_size = Vector2(1280, 720)
 layout_mode = 1
 anchors_preset = 8
@@ -38,44 +52,93 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxTexture_70qhd")
 
-[node name="txrctOwuiBackground" type="TextureRect" parent="panelcontOwuiMain"]
+[node name="txrctOwuiBackground" type="TextureRect" parent="panelOwuiOuter"]
 layout_mode = 2
 texture = ExtResource("2_a0ps1")
 expand_mode = 3
 
-[node name="vboxContentOuter_L1" type="VBoxContainer" parent="panelcontOwuiMain"]
+[node name="vboxOwuiInner" type="VBoxContainer" parent="panelOwuiOuter"]
 layout_mode = 2
 
-[node name="lblCcuiTitle" type="Label" parent="panelcontOwuiMain/vboxContentOuter_L1"]
+[node name="lblCcuiTitle" type="Label" parent="panelOwuiOuter/vboxOwuiInner"]
 layout_mode = 2
 text = "The City Awaits"
 horizontal_alignment = 1
 uppercase = true
 
-[node name="HBoxContainer" type="HBoxContainer" parent="panelcontOwuiMain/vboxContentOuter_L1"]
+[node name="HSeparator" type="HSeparator" parent="panelOwuiOuter/vboxOwuiInner"]
+layout_mode = 2
+
+[node name="panelOwuiContentMain" type="PanelContainer" parent="panelOwuiOuter/vboxOwuiInner"]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="VBoxContainer" type="VBoxContainer" parent="panelcontOwuiMain/vboxContentOuter_L1/HBoxContainer"]
+[node name="vboxOwuiMapOverlay" type="VBoxContainer" parent="panelOwuiOuter/vboxOwuiInner/panelOwuiContentMain"]
+layout_mode = 2
+
+[node name="lblMapHeader" type="Label" parent="panelOwuiOuter/vboxOwuiInner/panelOwuiContentMain/vboxOwuiMapOverlay"]
+layout_mode = 2
+text = "Where do you want to go?"
+horizontal_alignment = 1
+
+[node name="panelMapContent" type="PanelContainer" parent="panelOwuiOuter/vboxOwuiInner/panelOwuiContentMain/vboxOwuiMapOverlay"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="panelboxMap" type="Panel" parent="panelOwuiOuter/vboxOwuiInner/panelOwuiContentMain/vboxOwuiMapOverlay/panelMapContent"]
+layout_mode = 2
+
+[node name="txbtnTest1" type="TextureButton" parent="panelOwuiOuter/vboxOwuiInner/panelOwuiContentMain/vboxOwuiMapOverlay/panelMapContent/panelboxMap"]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+offset_left = 640.0
+offset_top = 329.0
+offset_right = 640.0
+offset_bottom = 329.0
+size_flags_horizontal = 4
+size_flags_vertical = 4
+texture_normal = ExtResource("4_jnir6")
+texture_pressed = ExtResource("5_v7lke")
+texture_hover = ExtResource("6_fhcr3")
+texture_disabled = ExtResource("7_18353")
+texture_focused = ExtResource("8_bphw2")
+ignore_texture_size = true
+stretch_mode = 4
+
+[node name="vboxOwuiSidePanel" type="VBoxContainer" parent="panelOwuiOuter/vboxOwuiInner/panelOwuiContentMain"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="panelOwuiOuter/vboxOwuiInner/panelOwuiContentMain/vboxOwuiSidePanel"]
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 3
+
+[node name="vboxLeftControls" type="VBoxContainer" parent="panelOwuiOuter/vboxOwuiInner/panelOwuiContentMain/vboxOwuiSidePanel/HBoxContainer"]
+layout_mode = 2
+
+[node name="btnCharInfo" type="CheckButton" parent="panelOwuiOuter/vboxOwuiInner/panelOwuiContentMain/vboxOwuiSidePanel/HBoxContainer/vboxLeftControls"]
+layout_mode = 2
+
+[node name="VSeparator" type="VSeparator" parent="panelOwuiOuter/vboxOwuiInner/panelOwuiContentMain/vboxOwuiSidePanel/HBoxContainer"]
+layout_mode = 2
+
+[node name="vboxCharPanel" type="VBoxContainer" parent="panelOwuiOuter/vboxOwuiInner/panelOwuiContentMain/vboxOwuiSidePanel/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="lblCharSummary" type="RichTextLabel" parent="panelcontOwuiMain/vboxContentOuter_L1/HBoxContainer/VBoxContainer"]
+[node name="lblCharSummary" type="RichTextLabel" parent="panelOwuiOuter/vboxOwuiInner/panelOwuiContentMain/vboxOwuiSidePanel/HBoxContainer/vboxCharPanel"]
 layout_mode = 2
 size_flags_vertical = 3
 text = "your character be like:"
 script = ExtResource("2_10i11")
 NodeGroups = Array[int]([5])
 
-[node name="btnBack2CcuiTest" type="Button" parent="panelcontOwuiMain/vboxContentOuter_L1/HBoxContainer/VBoxContainer"]
+[node name="btnBack2CcuiTest" type="Button" parent="panelOwuiOuter/vboxOwuiInner/panelOwuiContentMain/vboxOwuiSidePanel/HBoxContainer/vboxCharPanel"]
 layout_mode = 2
 text = "Back to Character Creation"
 script = ExtResource("3_ildr5")
 
-[node name="VSeparator" type="VSeparator" parent="panelcontOwuiMain/vboxContentOuter_L1/HBoxContainer"]
-layout_mode = 2
-
-[node name="CenterContainer" type="CenterContainer" parent="panelcontOwuiMain/vboxContentOuter_L1/HBoxContainer"]
+[node name="CenterContainer" type="CenterContainer" parent="panelOwuiOuter/vboxOwuiInner/panelOwuiContentMain/vboxOwuiSidePanel/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_stretch_ratio = 4.5
+size_flags_stretch_ratio = 4.0

@@ -2,9 +2,9 @@
 
 [ext_resource type="Script" path="res://scripts/ui_dev_mode/uiDevPanel.cs" id="1_m6xt2"]
 [ext_resource type="Script" path="res://scripts/ui_dev_mode/optBtnChooseRoller.cs" id="2_be833"]
-[ext_resource type="Script" path="res://scripts/global/LineEditFormInput.cs" id="3_dep6k"]
-[ext_resource type="Script" path="res://scripts/global/RichTextReadout.cs" id="5_ni8rx"]
-[ext_resource type="Script" path="res://scripts/global/BtnFormSubmit.cs" id="7_du0m1"]
+[ext_resource type="Script" path="res://scripts/custom_controls/LineEditFormInput.cs" id="3_dep6k"]
+[ext_resource type="Script" path="res://scripts/custom_controls/RichTextReadout.cs" id="5_ni8rx"]
+[ext_resource type="Script" path="res://scripts/custom_controls/BtnFormSubmit.cs" id="7_du0m1"]
 
 [node name="uiDevPanel" type="Control" node_paths=PackedStringArray("_actorSelection", "_dicePoolInput1", "_activeHungerOverride", "_reactingHungerOverride", "_testDiffInput", "_reactorSelection", "_dicePoolInput2", "_rollReadout", "_btnWillRerollWin", "_btnWillRerollRestrain", "_saveStateLabel", "_inputSaveFileName", "_btnSaveTo", "_inputLoadFileName", "_btnLoadFrom")]
 layout_mode = 3
@@ -133,7 +133,6 @@ text = "Reacting:
 layout_mode = 2
 size_flags_horizontal = 3
 script = ExtResource("2_be833")
-activeRoller = null
 
 [node name="lblDicePool2" type="Label" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
 layout_mode = 2

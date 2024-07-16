@@ -4,7 +4,7 @@
 [ext_resource type="Script" path="res://scripts/ui_char_creation/gridCharAttrs.cs" id="2_6o1rg"]
 [ext_resource type="Texture2D" uid="uid://covfekp6yfat3" path="res://images/backgrounds/bg_haven.jpg" id="2_y3esi"]
 [ext_resource type="Script" path="res://scripts/ui_char_creation/optBtnCharPronouns.cs" id="3_g2ecq"]
-[ext_resource type="Script" path="res://scripts/global/LineEditFormInput.cs" id="3_sdii1"]
+[ext_resource type="Script" path="res://scripts/custom_controls/LineEditFormInput.cs" id="3_sdii1"]
 [ext_resource type="Texture2D" uid="uid://dgryain8aok81" path="res://images/gui/dots_red_three.png" id="3_t0ahf"]
 [ext_resource type="Script" path="res://scripts/ui_char_creation/itemListCharBackgrounds.cs" id="3_tnff7"]
 [ext_resource type="Script" path="res://scripts/ui_char_creation/lblBackgroundInfo.cs" id="4_7fv07"]
