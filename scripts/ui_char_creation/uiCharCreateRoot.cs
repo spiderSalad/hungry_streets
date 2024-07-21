@@ -124,7 +124,7 @@ public partial class uiCharCreateRoot : Control
                 GD.Print($"CcuiTextInput: Unrecognized source '{key}'");
                 break;
         }
-        audioplayer.PlaySound(audioplayer.soundSelect1);
+        audioplayer.PlaySound(audioplayer.SoundSelect1);
     }
 
     public void CcuiSelection(Cfg.UI_KEY key, long selectionIndex)
@@ -141,7 +141,7 @@ public partial class uiCharCreateRoot : Control
                 GD.Print($"CcuiSelection: Unrecognized selection source '{key}'");
                 break;
         }
-        audioplayer.PlaySound(audioplayer.soundSelect1);
+        audioplayer.PlaySound(audioplayer.SoundSelect1);
     }
 
     public void CcuiSubmit(Cfg.UI_KEY key)
@@ -174,14 +174,14 @@ public partial class uiCharCreateRoot : Control
                 // and reenable it elsewhere.
                 break;
         }
-        audioplayer.PlaySound(audioplayer.soundConfirm1);
+        audioplayer.PlaySound(audioplayer.SoundConfirm1);
     }
 
     public void CcuiTabSwitch(long tab)
     {
         GD.Print($"CcuiTabSwitch: {tab}");
         switch (tab) { default: break; }
-        audioplayer.PlaySound(audioplayer.soundSelect1);
+        audioplayer.PlaySound(audioplayer.SoundSelect1);
     }
 
     private Tuple<bool, string[]> ValidateCharacter(PlayerChar currentChar)

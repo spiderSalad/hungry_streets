@@ -6,80 +6,95 @@
 [ext_resource type="Script" path="res://scripts/custom_controls/RichTextReadout.cs" id="5_ni8rx"]
 [ext_resource type="Script" path="res://scripts/custom_controls/BtnFormSubmit.cs" id="7_du0m1"]
 
-[node name="uiDevPanel" type="Control" node_paths=PackedStringArray("_actorSelection", "_dicePoolInput1", "_activeHungerOverride", "_reactingHungerOverride", "_testDiffInput", "_reactorSelection", "_dicePoolInput2", "_rollReadout", "_btnWillRerollWin", "_btnWillRerollRestrain", "_saveStateLabel", "_inputSaveFileName", "_btnSaveTo", "_inputLoadFileName", "_btnLoadFrom")]
+[node name="uiDevPanel" type="Control" node_paths=PackedStringArray("_toggleDevToolsBtn", "_devToolsContainer", "_devPanelOuter", "_actorSelection", "_dicePoolInput1", "_activeHungerOverride", "_reactingHungerOverride", "_testDiffInput", "_reactorSelection", "_dicePoolInput2", "_rollReadout", "_btnWillRerollWin", "_btnWillRerollRestrain", "_saveStateLabel", "_inputSaveFileName", "_btnSaveTo", "_inputLoadFileName", "_btnLoadFrom", "_btnCashTest1")]
 layout_mode = 3
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
 grow_horizontal = 0
+size_flags_horizontal = 8
 script = ExtResource("1_m6xt2")
-_actorSelection = NodePath("PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxChooseRollerActive/optBtnActiveRoller")
-_dicePoolInput1 = NodePath("PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/inputDicePool1")
-_activeHungerOverride = NodePath("PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxActorHunger/spinboxActorHunger")
-_reactingHungerOverride = NodePath("PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxReactorHunger/spinboxReactorHunger")
-_testDiffInput = NodePath("PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxTestRollParams/spinboxFlatDiff")
-_reactorSelection = NodePath("PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxChooseRollerReacting/optBtnReactingRoller")
-_dicePoolInput2 = NodePath("PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/inputDicePool2")
-_rollReadout = NodePath("PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/lblRtRollReadout")
-_btnWillRerollWin = NodePath("PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxRerollBtns/btnReroll2Win")
-_btnWillRerollRestrain = NodePath("PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxRerollBtns/btnReroll2Restrain")
-_saveStateLabel = NodePath("PanelContainer/vboxContentOuter/tabcontDpuiMain/Save and Load Tests/vboxContentMain/lblCurrentSaveState")
-_inputSaveFileName = NodePath("PanelContainer/vboxContentOuter/tabcontDpuiMain/Save and Load Tests/vboxContentMain/hboxSave/inputSaveWhich")
-_btnSaveTo = NodePath("PanelContainer/vboxContentOuter/tabcontDpuiMain/Save and Load Tests/vboxContentMain/hboxSave/btnSaveStateTo")
-_inputLoadFileName = NodePath("PanelContainer/vboxContentOuter/tabcontDpuiMain/Save and Load Tests/vboxContentMain/hboxLoad/inputLoadWhich")
-_btnLoadFrom = NodePath("PanelContainer/vboxContentOuter/tabcontDpuiMain/Save and Load Tests/vboxContentMain/hboxLoad/btnLoadStateFrom")
+_toggleDevToolsBtn = NodePath("PanelContainer/vboxToggle/chkbtnToggleDevTools")
+_devToolsContainer = NodePath("PanelContainer/vboxToggle/vboxContentDevTools")
+_devPanelOuter = NodePath("PanelContainer")
+_actorSelection = NodePath("PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxChooseRollerActive/optBtnActiveRoller")
+_dicePoolInput1 = NodePath("PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/inputDicePool1")
+_activeHungerOverride = NodePath("PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxActorHunger/spinboxActorHunger")
+_reactingHungerOverride = NodePath("PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxReactorHunger/spinboxReactorHunger")
+_testDiffInput = NodePath("PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxTestRollParams/spinboxFlatDiff")
+_reactorSelection = NodePath("PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxChooseRollerReacting/optBtnReactingRoller")
+_dicePoolInput2 = NodePath("PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/inputDicePool2")
+_rollReadout = NodePath("PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/lblRtRollReadout")
+_btnWillRerollWin = NodePath("PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxRerollBtns/btnReroll2Win")
+_btnWillRerollRestrain = NodePath("PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxRerollBtns/btnReroll2Restrain")
+_saveStateLabel = NodePath("PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Save and Load Tests/vboxContentMain/lblCurrentSaveState")
+_inputSaveFileName = NodePath("PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Save and Load Tests/vboxContentMain/hboxSave/inputSaveWhich")
+_btnSaveTo = NodePath("PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Save and Load Tests/vboxContentMain/hboxSave/btnSaveStateTo")
+_inputLoadFileName = NodePath("PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Save and Load Tests/vboxContentMain/hboxLoad/inputLoadWhich")
+_btnLoadFrom = NodePath("PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Save and Load Tests/vboxContentMain/hboxLoad/btnLoadStateFrom")
+_btnCashTest1 = NodePath("PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Save and Load Tests/vboxContentMain/btnMoCashTest")
 
 [node name="PanelContainer" type="PanelContainer" parent="."]
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -249.0
-offset_bottom = 389.0
+offset_left = -370.0
+offset_bottom = 611.0
 grow_horizontal = 0
 
-[node name="vboxContentOuter" type="VBoxContainer" parent="PanelContainer"]
+[node name="vboxToggle" type="VBoxContainer" parent="PanelContainer"]
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 0
+
+[node name="chkbtnToggleDevTools" type="CheckButton" parent="PanelContainer/vboxToggle"]
+layout_mode = 2
+text = "Show DevTools?"
+alignment = 2
+
+[node name="vboxContentDevTools" type="VBoxContainer" parent="PanelContainer/vboxToggle"]
 layout_mode = 2
 
-[node name="lblDpuiTitle" type="Label" parent="PanelContainer/vboxContentOuter"]
+[node name="lblDpuiTitle" type="Label" parent="PanelContainer/vboxToggle/vboxContentDevTools"]
 layout_mode = 2
 text = "Dev Panel"
 horizontal_alignment = 1
 
-[node name="tabcontDpuiMain" type="TabContainer" parent="PanelContainer/vboxContentOuter"]
+[node name="tabcontDpuiMain" type="TabContainer" parent="PanelContainer/vboxToggle/vboxContentDevTools"]
 layout_mode = 2
 
-[node name="Dice Roll Tests" type="MarginContainer" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain"]
+[node name="Dice Roll Tests" type="MarginContainer" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain"]
 layout_mode = 2
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_top = 15
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 15
 
-[node name="vboxContentMain" type="VBoxContainer" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests"]
+[node name="vboxContentMain" type="VBoxContainer" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Dice Roll Tests"]
 layout_mode = 2
 alignment = 1
 
-[node name="hboxChooseRollerActive" type="HBoxContainer" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
+[node name="hboxChooseRollerActive" type="HBoxContainer" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
 layout_mode = 2
 
-[node name="lblActiveRoller" type="Label" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxChooseRollerActive"]
+[node name="lblActiveRoller" type="Label" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxChooseRollerActive"]
 layout_mode = 2
 text = "Acting:
 "
 
-[node name="optBtnActiveRoller" type="OptionButton" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxChooseRollerActive"]
+[node name="optBtnActiveRoller" type="OptionButton" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxChooseRollerActive"]
 layout_mode = 2
 size_flags_horizontal = 3
 script = ExtResource("2_be833")
 activeRoller = true
 
-[node name="lblDicePool1" type="Label" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
+[node name="lblDicePool1" type="Label" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
 layout_mode = 2
 text = "Dice Pool #1 (Active Pool)
 "
 
-[node name="inputDicePool1" type="LineEdit" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
+[node name="inputDicePool1" type="LineEdit" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
 layout_mode = 2
 text = "5"
 placeholder_text = "Dice pool"
@@ -88,58 +103,59 @@ script = ExtResource("3_dep6k")
 NodeGroups = Array[int]([0])
 UiCommandKey = 2
 
-[node name="hboxActorHunger" type="HBoxContainer" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
+[node name="hboxActorHunger" type="HBoxContainer" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
 layout_mode = 2
 
-[node name="chkUseActorHunger" type="CheckBox" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxActorHunger"]
+[node name="chkUseActorHunger" type="CheckBox" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxActorHunger"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
 disabled = true
 text = "Use actor Hunger"
 
-[node name="spinboxActorHunger" type="SpinBox" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxActorHunger"]
+[node name="spinboxActorHunger" type="SpinBox" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxActorHunger"]
 layout_mode = 2
 max_value = 5.0
 value = 2.0
 
-[node name="HSeparator" type="HSeparator" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
+[node name="HSeparator" type="HSeparator" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
 layout_mode = 2
 
-[node name="hboxTestRollParams" type="HBoxContainer" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
+[node name="hboxTestRollParams" type="HBoxContainer" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
 layout_mode = 2
 
-[node name="lblTestDiff" type="Label" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxTestRollParams"]
+[node name="lblTestDiff" type="Label" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxTestRollParams"]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Test (Flat) Difficulty:"
 
-[node name="spinboxFlatDiff" type="SpinBox" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxTestRollParams"]
+[node name="spinboxFlatDiff" type="SpinBox" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxTestRollParams"]
 layout_mode = 2
 max_value = 25.0
 value = 2.0
 
-[node name="HSeparator2" type="HSeparator" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
+[node name="HSeparator2" type="HSeparator" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
 layout_mode = 2
 
-[node name="hboxChooseRollerReacting" type="HBoxContainer" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
+[node name="hboxChooseRollerReacting" type="HBoxContainer" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
 layout_mode = 2
 
-[node name="lblReactingRoller" type="Label" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxChooseRollerReacting"]
+[node name="lblReactingRoller" type="Label" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxChooseRollerReacting"]
 layout_mode = 2
 text = "Reacting:
 "
 
-[node name="optBtnReactingRoller" type="OptionButton" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxChooseRollerReacting"]
+[node name="optBtnReactingRoller" type="OptionButton" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxChooseRollerReacting"]
 layout_mode = 2
 size_flags_horizontal = 3
 script = ExtResource("2_be833")
+activeRoller = null
 
-[node name="lblDicePool2" type="Label" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
+[node name="lblDicePool2" type="Label" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
 layout_mode = 2
 text = "Dice Pool #2 (Contested Roll)
 "
 
-[node name="inputDicePool2" type="LineEdit" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
+[node name="inputDicePool2" type="LineEdit" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
 layout_mode = 2
 text = "5"
 placeholder_text = "Dice pool"
@@ -148,27 +164,27 @@ script = ExtResource("3_dep6k")
 NodeGroups = Array[int]([0])
 UiCommandKey = 5
 
-[node name="hboxReactorHunger" type="HBoxContainer" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
+[node name="hboxReactorHunger" type="HBoxContainer" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
 layout_mode = 2
 
-[node name="chkUseReactorHunger" type="CheckBox" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxReactorHunger"]
+[node name="chkUseReactorHunger" type="CheckBox" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxReactorHunger"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
 disabled = true
 text = "Use reactor Hunger"
 
-[node name="spinboxReactorHunger" type="SpinBox" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxReactorHunger"]
+[node name="spinboxReactorHunger" type="SpinBox" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxReactorHunger"]
 layout_mode = 2
 max_value = 5.0
 value = 1.0
 
-[node name="HSeparator3" type="HSeparator" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
+[node name="HSeparator3" type="HSeparator" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
 layout_mode = 2
 
-[node name="hboxRunDatBtns" type="HBoxContainer" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
+[node name="hboxRunDatBtns" type="HBoxContainer" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
 layout_mode = 2
 
-[node name="btnRunTest" type="Button" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxRunDatBtns"]
+[node name="btnRunTest" type="Button" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxRunDatBtns"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 3.0
@@ -177,7 +193,7 @@ script = ExtResource("7_du0m1")
 NodeGroups = Array[int]([0])
 formSubmitUiKey = 2
 
-[node name="btnRunContest" type="Button" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxRunDatBtns"]
+[node name="btnRunContest" type="Button" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxRunDatBtns"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 3.0
@@ -186,10 +202,10 @@ script = ExtResource("7_du0m1")
 NodeGroups = Array[int]([0])
 formSubmitUiKey = 5
 
-[node name="hboxRerollBtns" type="HBoxContainer" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
+[node name="hboxRerollBtns" type="HBoxContainer" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
 layout_mode = 2
 
-[node name="btnReroll2Win" type="Button" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxRerollBtns"]
+[node name="btnReroll2Win" type="Button" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxRerollBtns"]
 layout_mode = 2
 disabled = true
 text = "Willpower Reroll
@@ -198,7 +214,7 @@ script = ExtResource("7_du0m1")
 NodeGroups = Array[int]([0])
 formSubmitUiKey = 3
 
-[node name="btnReroll2Restrain" type="Button" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxRerollBtns"]
+[node name="btnReroll2Restrain" type="Button" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxRerollBtns"]
 layout_mode = 2
 disabled = true
 text = "Willpower Reroll
@@ -207,15 +223,15 @@ script = ExtResource("7_du0m1")
 NodeGroups = Array[int]([0])
 formSubmitUiKey = 4
 
-[node name="HSeparator4" type="HSeparator" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
+[node name="HSeparator4" type="HSeparator" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
 layout_mode = 2
 
-[node name="lblRollOutcome" type="Label" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
+[node name="lblRollOutcome" type="Label" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
 layout_mode = 2
 text = "Outcome"
 horizontal_alignment = 1
 
-[node name="lblRtRollReadout" type="RichTextLabel" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
+[node name="lblRtRollReadout" type="RichTextLabel" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Dice Roll Tests/vboxContentMain"]
 clip_contents = false
 custom_minimum_size = Vector2(350, 60)
 layout_mode = 2
@@ -230,7 +246,7 @@ fit_content = true
 script = ExtResource("5_ni8rx")
 NodeGroups = Array[int]([1, 6])
 
-[node name="Save and Load Tests" type="MarginContainer" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain"]
+[node name="Save and Load Tests" type="MarginContainer" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain"]
 visible = false
 layout_mode = 2
 theme_override_constants/margin_left = 10
@@ -238,44 +254,48 @@ theme_override_constants/margin_top = 15
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 15
 
-[node name="vboxContentMain" type="VBoxContainer" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Save and Load Tests"]
+[node name="vboxContentMain" type="VBoxContainer" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Save and Load Tests"]
 layout_mode = 2
 
-[node name="lblCurrentSaveState" type="Label" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Save and Load Tests/vboxContentMain"]
+[node name="lblCurrentSaveState" type="Label" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Save and Load Tests/vboxContentMain"]
 custom_minimum_size = Vector2(350, 0)
 layout_mode = 2
 text = "Current Save: None"
 
-[node name="hboxLoad" type="HBoxContainer" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Save and Load Tests/vboxContentMain"]
+[node name="hboxLoad" type="HBoxContainer" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Save and Load Tests/vboxContentMain"]
 layout_mode = 2
 
-[node name="inputLoadWhich" type="LineEdit" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Save and Load Tests/vboxContentMain/hboxLoad"]
+[node name="inputLoadWhich" type="LineEdit" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Save and Load Tests/vboxContentMain/hboxLoad"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 3.0
 
-[node name="btnLoadStateFrom" type="Button" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Save and Load Tests/vboxContentMain/hboxLoad"]
+[node name="btnLoadStateFrom" type="Button" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Save and Load Tests/vboxContentMain/hboxLoad"]
 layout_mode = 2
 text = "<- Load From"
 script = ExtResource("7_du0m1")
 NodeGroups = Array[int]([0])
 formSubmitUiKey = 11
 
-[node name="hboxSave" type="HBoxContainer" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Save and Load Tests/vboxContentMain"]
+[node name="hboxSave" type="HBoxContainer" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Save and Load Tests/vboxContentMain"]
 layout_mode = 2
 
-[node name="inputSaveWhich" type="LineEdit" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Save and Load Tests/vboxContentMain/hboxSave"]
+[node name="inputSaveWhich" type="LineEdit" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Save and Load Tests/vboxContentMain/hboxSave"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 3.0
 
-[node name="btnSaveStateTo" type="Button" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain/Save and Load Tests/vboxContentMain/hboxSave"]
+[node name="btnSaveStateTo" type="Button" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Save and Load Tests/vboxContentMain/hboxSave"]
 layout_mode = 2
 text = "<- Save To"
 script = ExtResource("7_du0m1")
 NodeGroups = Array[int]([0])
 formSubmitUiKey = 12
 
-[node name="Don\'t Even Ask" type="MarginContainer" parent="PanelContainer/vboxContentOuter/tabcontDpuiMain"]
+[node name="btnMoCashTest" type="Button" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Save and Load Tests/vboxContentMain"]
+layout_mode = 2
+text = "Get +$100"
+
+[node name="Don\'t Even Ask" type="MarginContainer" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain"]
 visible = false
 layout_mode = 2

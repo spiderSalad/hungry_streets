@@ -23,6 +23,20 @@ public static partial class Utils
         return $"{input}";
     }
 
+    public static string GenerateRandomAlphanumeric(int length)
+    {
+        var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        var stringChars = new char[length];
+        var rng = SetRng(new RandomNumberGenerator());
+
+        for (int i = 0; i < stringChars.Length; i++)
+        {
+            stringChars[i] = chars[GetSingleDieResult(0, chars.Length - 1, rng)];
+        }
+
+        return new string(stringChars);
+    }
+
     public static int FindNthOccurrence(string input, string substr, int n = 1)
     {
         // GD.Print($"Find Nth: called looking for occurrence #{n} of '{substr}' in '{input}'");

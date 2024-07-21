@@ -9,6 +9,11 @@ public partial class uiDevPanel : Control
     private Godot.Collections.Array<Node> DpuiDisplays;
     private AudioHandler audioplayer;
 
+    [ExportGroup("ToggleMain")]
+    [Export] private CheckButton _toggleDevToolsBtn;
+    [Export] private Control _devToolsContainer;
+    [Export] private Control _devPanelOuter;
+
     [ExportGroup("DiceRollForm")]
     [Export] private OptionButton _actorSelection;
     [Export] private LineEdit _dicePoolInput1;
@@ -27,6 +32,7 @@ public partial class uiDevPanel : Control
     [Export] private Button _btnSaveTo;
     [Export] private LineEdit _inputLoadFileName;
     [Export] private Button _btnLoadFrom;
+    [Export] private Button _btnCashTest1;
 
     [ExportGroup("")] // Can I only use this to break out once?
 
@@ -75,6 +81,9 @@ public partial class uiDevPanel : Control
         gm.Connect(SignalName.GameStateLoaded, Godot.Callable.From(() => OnGameLoaded()));
         gm.Connect(SignalName.GameStateSaved, Godot.Callable.From(() => OnGameSaved()));
 
+        ToggleMe(_toggleDevToolsBtn.ButtonPressed);
+        _toggleDevToolsBtn.Toggled += ToggleMe;
+
         DpuiInputs = this.GetTree().GetNodesInGroup($"{Cfg.GROUP_NAMES.DPUI_INPUTS}");
         foreach (Node node in DpuiInputs)
         {
@@ -98,6 +107,11 @@ public partial class uiDevPanel : Control
 
         DpuiDisplays = GetTree().GetNodesInGroup($"{Cfg.GROUP_NAMES.DPUI_DISPLAYS}");
         foreach (Node node in DpuiDisplays) { }
+        _btnCashTest1.Pressed += () => {
+            GD.Print("Mo money, no problems");
+            gm.ThePc.Cash += 100;
+            //gm.SignalPcUpdate(Cfg.UI_KEY.OTHER_GAMEPLAY_ENT_UPDATE, gm.ThePc);
+        };
 
         MoveMeToEnd();
         audioplayer = GetNode<AudioHandler>("/root/AudioHandler");
@@ -119,6 +133,15 @@ public partial class uiDevPanel : Control
     public void MoveMeToEnd()
     {
         this.CallDeferred(MethodName.DeferredMoveMeToEnd);
+    }
+
+    public void ToggleMe(bool toggledOn)
+    {
+        _devToolsContainer.Visible = toggledOn;
+        _devPanelOuter.SizeFlagsVertical = SizeFlags.ShrinkBegin; // Don't think this works here.
+        _devPanelOuter.Size = new(
+            _devPanelOuter.Size.X, toggledOn ? 615 : _toggleDevToolsBtn.Size.Y + 10
+        );
     }
 
     protected void DeferredMoveMeToEnd()
@@ -254,33 +277,33 @@ public partial class uiDevPanel : Control
         switch (key)
         {
             case Cfg.UI_KEY.DICE_TEST_1_TEST:
-                audioplayer.PlaySound(audioplayer.soundDiceMany);
+                audioplayer.PlaySound(audioplayer.SoundDiceMany);
                 RunDiceTestType1x(false);
                 break;
             case Cfg.UI_KEY.DICE_TEST_2_REROLL_WIN:
-                audioplayer.PlaySound(audioplayer.soundDiceFew);
+                audioplayer.PlaySound(audioplayer.SoundDiceFew);
                 RunDiceTestType2(true, false);
                 break;
             case Cfg.UI_KEY.DICE_TEST_3_REROLL_RESTRAIN:
-                audioplayer.PlaySound(audioplayer.soundDiceFew);
+                audioplayer.PlaySound(audioplayer.SoundDiceFew);
                 RunDiceTestType2(false, true);
                 break;
             case Cfg.UI_KEY.DICE_TEST_4_CONTEST:
-                audioplayer.PlaySound(audioplayer.soundDiceMany);
+                audioplayer.PlaySound(audioplayer.SoundDiceMany);
                 RunDiceTestType1x(true);
                 break;
             case Cfg.UI_KEY.LOAD_GAME_FROM_PATH:
                 err = gm.LoadGame(_inputLoadFileName.Text);
                 if (err == Error.Ok)
                 {
-                    audioplayer.PlaySound(audioplayer.soundConfirm1);
+                    audioplayer.PlaySound(audioplayer.SoundConfirm1);
                 }
                 break;
             case Cfg.UI_KEY.SAVE_GAME_TO_PATH:
                 err = gm.SaveGame(_inputSaveFileName.Text);
                 if (err == Error.Ok)
                 {
-                    audioplayer.PlaySound(audioplayer.soundConfirm1);
+                    audioplayer.PlaySound(audioplayer.SoundConfirm1);
                 }
                 break;
             default:

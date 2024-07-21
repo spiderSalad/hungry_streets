@@ -17,7 +17,9 @@ public partial class lblCharSummary : RichTextReadout
         charReadout += $"Name: {currentChar.Name}{lb}";
         charReadout += $"Background: {currentChar.Background.Name}{lb}";
         charReadout += $"{currentChar?.Block}\n";
-        charReadout += $"{currentChar.Hp}\n{currentChar.Will}\n";
+        charReadout += $"{currentChar.Hp}\n{currentChar.Will}{lb}";
+        charReadout += $"Location: {currentChar.CurrentLocation?.LocName ?? "Unknown"}{lb}";
+        charReadout += $"Cash on hand: ${currentChar.Cash}{lb}";
         charReadout += $"etc, etc, todo...";
         if (Cfg.DEV_MODE)
         {

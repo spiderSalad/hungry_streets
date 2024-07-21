@@ -2,6 +2,7 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 public partial class GameManager : Node
@@ -186,6 +187,17 @@ public partial class GameManager : Node
         GD.Print($"\nHandle load state: {PresentState.Id},\n\tfrom path '{pathUsed}'\n");
         PresentState.OnLoad(pathUsed);
         ThePc = PlayerChar.BuildFromBundle(new PlayerChar(), PresentState.PcDataBundle);
+        ThePc.CurrentLocation = Cfg.LocationsDict[PresentState.CurrentLoc];
+
+        foreach (MapLoc loc in Cfg.StartingUnlockedLocs)
+        {
+            GD.Print($"starting loc: {loc}");
+            if (!PresentState.UnlockedLocations.Contains(loc.LocId))
+            {
+                PresentState.UnlockedLocations.Add(loc.LocId);
+            }
+        }
+
         EmitSignal(SignalName.GameStateLoaded);
         SignalPcUpdate(Cfg.UI_KEY.LOADED_GAME_ENT_UPDATE, ThePc);
     }
@@ -216,6 +228,7 @@ public partial class GameManager : Node
     {
         PresentState ??= new();
         PresentState.PcDataBundle = ThePc.Bundle();
+        PresentState.CurrentLoc = ThePc.CurrentLocation.LocId;
     }
 
     public void GoToScene(string path)

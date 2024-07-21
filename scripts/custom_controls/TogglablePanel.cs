@@ -18,8 +18,6 @@ public partial class TogglablePanel : Control
 
 	public void TogglePanel(bool toggledOn)
 	{
-		// _panel.Visible = !_panel.Visible;
-		GD.Print($"\nTogglePanel: {toggledOn}");
 		_panel.Visible = toggledOn;
 	}
 }

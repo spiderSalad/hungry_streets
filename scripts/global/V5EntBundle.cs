@@ -14,6 +14,8 @@ public partial class V5EntBundle : Resource
     [Export] public int WillDmgAgg { get; set; }
     [Export] public int Hunger { get; set; }
     // Powers, Buffs
+    [Export] public int Cash { get; set; }
+    // TODO: Whole-ass Inventory
 
     [Export] public int NumDiceTests { get; set; }
 }

@@ -390,6 +390,9 @@ public partial class V5Entity : Godot.Resource
     public bool CanThink { get; private set; } = true;
     public int UnspentXp { get; private set; } = 0;
 
+    // Currently in dollars, no further granularity.
+    public int Cash { get; set; } = 100; // TODO: Dollars-to-cents thing later, maybe?
+
     protected void Initialize()
     {
         GdtResourceId = base.ToString();
@@ -531,7 +534,8 @@ public partial class V5Entity : Godot.Resource
             HpDmgAgg = Hp.AggDamage,
             WillDmgSpf = Will.SpfDamage,
             WillDmgAgg = Will.AggDamage,
-            NumDiceTests = numDiceTests
+            NumDiceTests = numDiceTests,
+            Cash = Cash
         };
     }
 
@@ -543,6 +547,7 @@ public partial class V5Entity : Godot.Resource
         ent.Hp.SetAggDamage(bundle.HpDmgAgg); ent.Hp.SetSpfDamage(bundle.HpDmgSpf);
         ent.Will.SetAggDamage(bundle.WillDmgAgg); ent.Will.SetSpfDamage(bundle.WillDmgSpf);
         ent.Hunger = ent.HasHunger ? bundle.Hunger : 0;
+        ent.Cash = bundle.Cash;
         ent.numDiceTests = bundle.NumDiceTests;
         return ent;
     }
@@ -578,6 +583,30 @@ public partial class PlayerChar : V5Entity
                 int newStatValue = statPair.Item1 is int ? (int)statPair.Item1 : stat.Min;
                 // GD.Print($"Setting {stat.Id} to {newStatValue} for {this} (w/ Block {Block}) b/c statPair.Item1 = {statPair.Item1}");
                 Block.SetBaseStat(stat.Id, newStatValue);
+            }
+        }
+    }
+
+    public MapLoc PreviousLocation { get; private set; }
+    private MapLoc _currentLocation;
+    public MapLoc CurrentLocation
+    {
+        get => _currentLocation;
+        set
+        {
+            // TODO, maybe: Signal?
+            if (_currentLocation != value)
+            {
+                GD.Print(
+                    $"PC: Moving from {PreviousLocation?.LocName ?? "an unknown location"} " +
+                    $"to {value}..."
+                );
+                PreviousLocation = _currentLocation;
+                _currentLocation = value;
+            }
+            else
+            {
+                GD.PrintErr($"PC: Already at '{_currentLocation}' ('{value}')!");
             }
         }
     }

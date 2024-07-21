@@ -8,21 +8,20 @@ public partial class GameState : Godot.Resource
     public string PathLastLoadedFrom { get; private set; }
     public string PathLastSavedTo { get; private set; }
     [Export] public string Id { get; private set; }
-    // [Export] public PlayerChar Pc { get; set; }
     [Export] public V5EntBundle PcDataBundle { get; set; }
     [Export] public int TimePlayed { get; private set; }
     [Export] public int TimesLoaded { get; set; }
     [Export] public int TimesWrittenTo { get; set; }
 
-    [Export] public int TestField1 { get; set; }// = 201;
-    [Export] public string TestField2 { get; set; }// = "ole you fuck";
+    [Export] public int TestField1 { get; set; }
+    [Export] public string TestField2 { get; set; }
 
     public string TestField3Unex { get; set; }
 
-
     // TODO: Obviously these strings have to be replaced with some other type.
 
-    public string CurrentLoc { get; set; }
+    [Export] public string CurrentLoc { get; set; }
+    [Export] public Godot.Collections.Array UnlockedLocations { get; set; } = new();
     private string _playerHaven = "any";
     public string PlayerHaven
     {

@@ -169,6 +169,55 @@
 		]
 	},
 	{
+		"name": "Xampi8",
+		"type": "sound_engineer",
+		"works": [
+			{
+				"name": "Heels.wav",
+				"licenseUrl": "https://creativecommons.org/licenses/by/3.0/"
+			}
+		],
+		"website": "",
+		"socials": [
+			{
+				"site": "freesound.org",
+				"handle": "Xampi8",
+				"url": "https://freesound.org/people/Xampi8/"
+			}
+		]
+	},
+	{
+		"name": "ggAkatsukiP",
+		"type": "sound_engineer",
+		"works": [
+			{
+				"name": "S04=08_Car-arrive.wav",
+				"licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+			}
+		],
+		"website": "",
+		"socials": [
+			{
+				"site": "freesound.org",
+				"handle": "ggAkatsukiP",
+				"url": "https://freesound.org/people/ggAkatsukiP/"
+			}
+		]
+	},
+	{
+		"name":"Dylan Kelk",
+		"type":"sound_engineer",
+		"works":[
+			{"name":"Decapitation (earlier blood spurt).wav", "licenseUrl":"https://creativecommons.org/licenses/by/4.0/"},
+			{"name":"Cancel (Retro /Thin)", "licenseUrl":"https://creativecommons.org/licenses/by/4.0/"}
+		],
+		"website":"",
+		"socials":[
+			{"site":"youtube.com", "handle":"Dylan Kelk", "url":"https://www.youtube.com/channel/UCth-P4xx8Eruw0JnbSUZkHg"},
+			{"site":"freesound.org", "handle":"SilverIllusionist", "url":"https://freesound.org/people/SilverIllusionist/"}
+		]
+	},
+	{
 		"name": "",
 		"type": "",
 		"works": [
