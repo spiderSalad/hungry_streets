@@ -19,6 +19,9 @@ public partial class lblCharSummary : RichTextReadout
         charReadout += $"{currentChar?.Block}\n";
         charReadout += $"{currentChar.Hp}\n{currentChar.Will}{lb}";
         charReadout += $"Location: {currentChar.CurrentLocation?.LocName ?? "Unknown"}{lb}";
+        charReadout += $"Sheltered? {Utils.YesNo(currentChar.Sheltered)}\n";
+        charReadout += $"Traveling? {Utils.YesNo(currentChar.Traveling)}\n";
+        charReadout += $"In Public? {Utils.YesNo(currentChar.InPublic)}{lb}";
         charReadout += $"Cash on hand: ${currentChar.Cash}{lb}";
         charReadout += $"etc, etc, todo...";
         if (Cfg.DEV_MODE)

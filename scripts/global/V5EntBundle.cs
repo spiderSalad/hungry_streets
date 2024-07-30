@@ -14,6 +14,11 @@ public partial class V5EntBundle : Resource
     [Export] public int WillDmgAgg { get; set; }
     [Export] public int Hunger { get; set; }
     // Powers, Buffs
+
+    [Export] public bool Sheltered { get; set; }
+    [Export] public bool Traveling { get; set; }
+    [Export] public bool InPublic { get; set; }
+
     [Export] public int Cash { get; set; }
     // TODO: Whole-ass Inventory
 

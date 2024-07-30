@@ -1,0 +1,26 @@
+[gd_scene load_steps=2 format=3 uid="uid://c5ssx0wxjwhur"]
+
+[ext_resource type="Script" path="res://scripts/ui_game_header/uiGameHeader.cs" id="1_und4q"]
+
+[node name="uiGameHeader" type="MarginContainer" node_paths=PackedStringArray("_mainGameHeaderText", "_lblGameClock")]
+anchors_preset = 10
+anchor_right = 1.0
+grow_horizontal = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_right = 5
+script = ExtResource("1_und4q")
+_mainGameHeaderText = NodePath("lblMainHeaderText")
+_lblGameClock = NodePath("lblGameClock")
+
+[node name="lblMainHeaderText" type="Label" parent="."]
+layout_mode = 2
+size_flags_vertical = 0
+text = "The Streets Are Watching
+"
+horizontal_alignment = 1
+
+[node name="lblGameClock" type="Label" parent="."]
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+text = "Night's Wasting..."

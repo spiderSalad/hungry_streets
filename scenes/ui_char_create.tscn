@@ -1,8 +1,9 @@
-[gd_scene load_steps=15 format=3 uid="uid://c01wlc4xbxm2j"]
+[gd_scene load_steps=16 format=3 uid="uid://c01wlc4xbxm2j"]
 
 [ext_resource type="Script" path="res://scripts/ui_char_creation/uiCharCreateRoot.cs" id="1_u7md7"]
 [ext_resource type="Script" path="res://scripts/ui_char_creation/gridCharAttrs.cs" id="2_6o1rg"]
 [ext_resource type="Texture2D" uid="uid://covfekp6yfat3" path="res://images/backgrounds/bg_haven.jpg" id="2_y3esi"]
+[ext_resource type="PackedScene" uid="uid://c5ssx0wxjwhur" path="res://scenes/ui_game_header.tscn" id="3_27y65"]
 [ext_resource type="Script" path="res://scripts/ui_char_creation/optBtnCharPronouns.cs" id="3_g2ecq"]
 [ext_resource type="Script" path="res://scripts/custom_controls/LineEditFormInput.cs" id="3_sdii1"]
 [ext_resource type="Texture2D" uid="uid://dgryain8aok81" path="res://images/gui/dots_red_three.png" id="3_t0ahf"]
@@ -31,7 +32,7 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 script = ExtResource("1_u7md7")
 
-[node name="panelcontCcuiMain" type="PanelContainer" parent="."]
+[node name="panelCcuiContentOuter" type="PanelContainer" parent="."]
 custom_minimum_size = Vector2(1280, 720)
 layout_mode = 1
 anchors_preset = 8
@@ -47,58 +48,62 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxTexture_qsus5")
 
-[node name="txrctCcuiBackground" type="TextureRect" parent="panelcontCcuiMain"]
+[node name="txrctCcuiBackground" type="TextureRect" parent="panelCcuiContentOuter"]
 layout_mode = 2
 texture = ExtResource("2_y3esi")
 expand_mode = 3
 
-[node name="vboxContentOuter" type="VBoxContainer" parent="panelcontCcuiMain"]
+[node name="vboxContentMain" type="VBoxContainer" parent="panelCcuiContentOuter"]
 layout_mode = 2
 
-[node name="lblCcuiTitle" type="Label" parent="panelcontCcuiMain/vboxContentOuter"]
+[node name="lblCcuiTitle" type="Label" parent="panelCcuiContentOuter/vboxContentMain"]
+visible = false
 layout_mode = 2
 text = "character creation"
 horizontal_alignment = 1
 uppercase = true
 
-[node name="tabcontCcuiMain" type="TabContainer" parent="panelcontCcuiMain/vboxContentOuter"]
+[node name="uiGameHeader" parent="panelCcuiContentOuter/vboxContentMain" instance=ExtResource("3_27y65")]
+layout_mode = 2
+
+[node name="tabcontCreationStages" type="TabContainer" parent="panelCcuiContentOuter/vboxContentMain"]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="Human Abilities" type="MarginContainer" parent="panelcontCcuiMain/vboxContentOuter/tabcontCcuiMain"]
+[node name="Human Abilities" type="MarginContainer" parent="panelCcuiContentOuter/vboxContentMain/tabcontCreationStages"]
 layout_mode = 2
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 10
 
-[node name="vboxCcuiContent_1" type="VBoxContainer" parent="panelcontCcuiMain/vboxContentOuter/tabcontCcuiMain/Human Abilities"]
+[node name="vboxCcuiContent_1" type="VBoxContainer" parent="panelCcuiContentOuter/vboxContentMain/tabcontCreationStages/Human Abilities"]
 layout_mode = 2
 
-[node name="hboxCcuiPage1Split" type="HBoxContainer" parent="panelcontCcuiMain/vboxContentOuter/tabcontCcuiMain/Human Abilities/vboxCcuiContent_1"]
+[node name="hboxCcuiPage1Split" type="HBoxContainer" parent="panelCcuiContentOuter/vboxContentMain/tabcontCreationStages/Human Abilities/vboxCcuiContent_1"]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="scrollContainerCharSettings" type="ScrollContainer" parent="panelcontCcuiMain/vboxContentOuter/tabcontCcuiMain/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split"]
+[node name="scrollContainerCharSettings" type="ScrollContainer" parent="panelCcuiContentOuter/vboxContentMain/tabcontCreationStages/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 2.5
 horizontal_scroll_mode = 0
 
-[node name="vboxCharSettings" type="VBoxContainer" parent="panelcontCcuiMain/vboxContentOuter/tabcontCcuiMain/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings"]
+[node name="vboxCharSettings" type="VBoxContainer" parent="panelCcuiContentOuter/vboxContentMain/tabcontCreationStages/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/separation = 15
 
-[node name="lblHeaderIdentity" type="Label" parent="panelcontCcuiMain/vboxContentOuter/tabcontCcuiMain/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings"]
+[node name="lblHeaderIdentity" type="Label" parent="panelCcuiContentOuter/vboxContentMain/tabcontCreationStages/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings"]
 layout_mode = 2
 text = "Identity"
 
-[node name="hboxCharIdentity" type="HBoxContainer" parent="panelcontCcuiMain/vboxContentOuter/tabcontCcuiMain/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings"]
+[node name="hboxCharIdentity" type="HBoxContainer" parent="panelCcuiContentOuter/vboxContentMain/tabcontCreationStages/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings"]
 layout_mode = 2
 
-[node name="inputCharName" type="LineEdit" parent="panelcontCcuiMain/vboxContentOuter/tabcontCcuiMain/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings/hboxCharIdentity"]
+[node name="inputCharName" type="LineEdit" parent="panelCcuiContentOuter/vboxContentMain/tabcontCreationStages/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings/hboxCharIdentity"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 1.5
@@ -107,13 +112,13 @@ script = ExtResource("3_sdii1")
 NodeGroups = Array[int]([2])
 UiCommandKey = 6
 
-[node name="inputCharNickname" type="LineEdit" parent="panelcontCcuiMain/vboxContentOuter/tabcontCcuiMain/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings/hboxCharIdentity"]
+[node name="inputCharNickname" type="LineEdit" parent="panelCcuiContentOuter/vboxContentMain/tabcontCreationStages/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings/hboxCharIdentity"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 1.5
 placeholder_text = "Nickname or epithet..."
 
-[node name="optBtnCharPronouns" type="OptionButton" parent="panelcontCcuiMain/vboxContentOuter/tabcontCcuiMain/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings/hboxCharIdentity"]
+[node name="optBtnCharPronouns" type="OptionButton" parent="panelCcuiContentOuter/vboxContentMain/tabcontCreationStages/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings/hboxCharIdentity"]
 layout_mode = 2
 size_flags_horizontal = 3
 item_count = 4
@@ -129,16 +134,16 @@ popup/item_3/text = "They/Them"
 popup/item_3/id = 3
 script = ExtResource("3_g2ecq")
 
-[node name="lblHeaderBackground" type="Label" parent="panelcontCcuiMain/vboxContentOuter/tabcontCcuiMain/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings"]
+[node name="lblHeaderBackground" type="Label" parent="panelCcuiContentOuter/vboxContentMain/tabcontCreationStages/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings"]
 layout_mode = 2
 text = "Background"
 
-[node name="hboxCharBackgrounds" type="HBoxContainer" parent="panelcontCcuiMain/vboxContentOuter/tabcontCcuiMain/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings"]
+[node name="hboxCharBackgrounds" type="HBoxContainer" parent="panelCcuiContentOuter/vboxContentMain/tabcontCreationStages/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings"]
 custom_minimum_size = Vector2(100, 100)
 layout_mode = 2
 theme_override_constants/separation = 20
 
-[node name="itemListCharBackgrounds" type="ItemList" parent="panelcontCcuiMain/vboxContentOuter/tabcontCcuiMain/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings/hboxCharBackgrounds"]
+[node name="itemListCharBackgrounds" type="ItemList" parent="panelCcuiContentOuter/vboxContentMain/tabcontCreationStages/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings/hboxCharBackgrounds"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/h_separation = 10
@@ -155,7 +160,7 @@ item_3/text = "Star athlete"
 item_4/text = "Veteran"
 script = ExtResource("3_tnff7")
 
-[node name="lblBackgroundInfo" type="RichTextLabel" parent="panelcontCcuiMain/vboxContentOuter/tabcontCcuiMain/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings/hboxCharBackgrounds"]
+[node name="lblBackgroundInfo" type="RichTextLabel" parent="panelCcuiContentOuter/vboxContentMain/tabcontCreationStages/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings/hboxCharBackgrounds"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/text_highlight_h_padding = 10
@@ -165,66 +170,66 @@ fit_content = true
 drag_and_drop_selection_enabled = false
 script = ExtResource("4_7fv07")
 
-[node name="hboxTESTSTAT" type="HBoxContainer" parent="panelcontCcuiMain/vboxContentOuter/tabcontCcuiMain/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings"]
+[node name="hboxTESTSTAT" type="HBoxContainer" parent="panelCcuiContentOuter/vboxContentMain/tabcontCreationStages/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings"]
 layout_mode = 2
 tooltip_text = "hbox hereeeee"
 theme_override_constants/separation = 10
 
-[node name="Label" type="Label" parent="panelcontCcuiMain/vboxContentOuter/tabcontCcuiMain/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings/hboxTESTSTAT"]
+[node name="Label" type="Label" parent="panelCcuiContentOuter/vboxContentMain/tabcontCreationStages/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings/hboxTESTSTAT"]
 layout_mode = 2
 tooltip_text = "Here's how best to cook and consume smegma:"
 theme_override_font_sizes/font_size = 16
 text = "Test Attribute"
 
-[node name="TextureRect" type="TextureRect" parent="panelcontCcuiMain/vboxContentOuter/tabcontCcuiMain/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings/hboxTESTSTAT"]
+[node name="TextureRect" type="TextureRect" parent="panelCcuiContentOuter/vboxContentMain/tabcontCreationStages/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings/hboxTESTSTAT"]
 layout_mode = 2
 tooltip_text = "get rect"
 texture = ExtResource("3_t0ahf")
 expand_mode = 3
 
-[node name="lblHeaderAttrs" type="Label" parent="panelcontCcuiMain/vboxContentOuter/tabcontCcuiMain/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings"]
+[node name="lblHeaderAttrs" type="Label" parent="panelCcuiContentOuter/vboxContentMain/tabcontCreationStages/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings"]
 layout_mode = 2
 text = "Attributes"
 
-[node name="margContGridAttrs" type="MarginContainer" parent="panelcontCcuiMain/vboxContentOuter/tabcontCcuiMain/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings"]
+[node name="margContGridAttrs" type="MarginContainer" parent="panelCcuiContentOuter/vboxContentMain/tabcontCreationStages/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings"]
 layout_mode = 2
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_right = 10
 
-[node name="gridCharAttrs" type="GridContainer" parent="panelcontCcuiMain/vboxContentOuter/tabcontCcuiMain/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings/margContGridAttrs"]
+[node name="gridCharAttrs" type="GridContainer" parent="panelCcuiContentOuter/vboxContentMain/tabcontCreationStages/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings/margContGridAttrs"]
 layout_mode = 2
 columns = 3
 script = ExtResource("2_6o1rg")
 NodeGroups = Array[int]([3])
 
-[node name="lblHeaderSkills" type="Label" parent="panelcontCcuiMain/vboxContentOuter/tabcontCcuiMain/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings"]
+[node name="lblHeaderSkills" type="Label" parent="panelCcuiContentOuter/vboxContentMain/tabcontCreationStages/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings"]
 layout_mode = 2
 text = "Skills"
 
-[node name="margContGridSkills" type="MarginContainer" parent="panelcontCcuiMain/vboxContentOuter/tabcontCcuiMain/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings"]
+[node name="margContGridSkills" type="MarginContainer" parent="panelCcuiContentOuter/vboxContentMain/tabcontCreationStages/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings"]
 layout_mode = 2
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_right = 10
 
-[node name="gridCharSkills" type="GridContainer" parent="panelcontCcuiMain/vboxContentOuter/tabcontCcuiMain/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings/margContGridSkills"]
+[node name="gridCharSkills" type="GridContainer" parent="panelCcuiContentOuter/vboxContentMain/tabcontCreationStages/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings/margContGridSkills"]
 layout_mode = 2
 columns = 3
 script = ExtResource("7_lon5k")
 NodeGroups = Array[int]([3])
 
-[node name="ColorRect" type="ColorRect" parent="panelcontCcuiMain/vboxContentOuter/tabcontCcuiMain/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings"]
+[node name="ColorRect" type="ColorRect" parent="panelCcuiContentOuter/vboxContentMain/tabcontCreationStages/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split/scrollContainerCharSettings/vboxCharSettings"]
 custom_minimum_size = Vector2(50, 0)
 layout_mode = 2
 color = Color(1, 0.0392157, 0.0392157, 0.196078)
 
-[node name="VSeparator" type="VSeparator" parent="panelcontCcuiMain/vboxContentOuter/tabcontCcuiMain/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split"]
+[node name="VSeparator" type="VSeparator" parent="panelCcuiContentOuter/vboxContentMain/tabcontCreationStages/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split"]
 layout_mode = 2
 
-[node name="txrctCharPortrait" type="TextureRect" parent="panelcontCcuiMain/vboxContentOuter/tabcontCcuiMain/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split"]
+[node name="txrctCharPortrait" type="TextureRect" parent="panelCcuiContentOuter/vboxContentMain/tabcontCreationStages/Human Abilities/vboxCcuiContent_1/hboxCcuiPage1Split"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Vampiric Embrace" type="MarginContainer" parent="panelcontCcuiMain/vboxContentOuter/tabcontCcuiMain"]
+[node name="Vampiric Embrace" type="MarginContainer" parent="panelCcuiContentOuter/vboxContentMain/tabcontCreationStages"]
 visible = false
 layout_mode = 2
 theme_override_constants/margin_left = 10
@@ -232,10 +237,10 @@ theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 10
 
-[node name="vboxCcuiContent_2" type="VBoxContainer" parent="panelcontCcuiMain/vboxContentOuter/tabcontCcuiMain/Vampiric Embrace"]
+[node name="vboxCcuiContent_2" type="VBoxContainer" parent="panelCcuiContentOuter/vboxContentMain/tabcontCreationStages/Vampiric Embrace"]
 layout_mode = 2
 
-[node name="Finish and Start" type="MarginContainer" parent="panelcontCcuiMain/vboxContentOuter/tabcontCcuiMain"]
+[node name="Finish and Start" type="MarginContainer" parent="panelCcuiContentOuter/vboxContentMain/tabcontCreationStages"]
 visible = false
 layout_mode = 2
 theme_override_constants/margin_left = 10
@@ -243,16 +248,16 @@ theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 10
 
-[node name="vboxCcuiContent_3" type="VBoxContainer" parent="panelcontCcuiMain/vboxContentOuter/tabcontCcuiMain/Finish and Start"]
+[node name="vboxCcuiContent_3" type="VBoxContainer" parent="panelCcuiContentOuter/vboxContentMain/tabcontCreationStages/Finish and Start"]
 layout_mode = 2
 
-[node name="lblCharSummary" type="RichTextLabel" parent="panelcontCcuiMain/vboxContentOuter/tabcontCcuiMain/Finish and Start/vboxCcuiContent_3"]
+[node name="lblCharSummary" type="RichTextLabel" parent="panelCcuiContentOuter/vboxContentMain/tabcontCreationStages/Finish and Start/vboxCcuiContent_3"]
 layout_mode = 2
 fit_content = true
 script = ExtResource("9_ba5is")
 NodeGroups = Array[int]([3])
 
-[node name="btnCcuiFinishExit" type="Button" parent="panelcontCcuiMain/vboxContentOuter/tabcontCcuiMain/Finish and Start/vboxCcuiContent_3"]
+[node name="btnCcuiFinishExit" type="Button" parent="panelCcuiContentOuter/vboxContentMain/tabcontCreationStages/Finish and Start/vboxCcuiContent_3"]
 layout_mode = 2
 text = "Confirm & Exit"
 script = ExtResource("10_u7pyb")

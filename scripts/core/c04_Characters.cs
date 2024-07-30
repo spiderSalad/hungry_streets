@@ -597,12 +597,13 @@ public partial class PlayerChar : V5Entity
             // TODO, maybe: Signal?
             if (_currentLocation != value)
             {
-                GD.Print(
-                    $"PC: Moving from {PreviousLocation?.LocName ?? "an unknown location"} " +
-                    $"to {value}..."
-                );
                 PreviousLocation = _currentLocation;
                 _currentLocation = value;
+                GD.Print(
+                    $"PC: Moving from {PreviousLocation?.LocName ?? "an unknown location"} " +
+                    // $"PC: Moving from {_currentLocation?.LocName ?? "an unknown location"} " +
+                    $"to {value}..."
+                );
             }
             else
             {
@@ -611,10 +612,17 @@ public partial class PlayerChar : V5Entity
         }
     }
 
+    public bool Sheltered { get; set; }
+    public bool Traveling { get; set; }
+    public bool InPublic { get; set; }
+
     public override V5EntBundle Bundle()
     {
         V5EntBundle bundle = base.Bundle();
         bundle.BackgroundName = Background.Name;
+        bundle.Sheltered = Sheltered;
+        bundle.Traveling = Traveling;
+        bundle.InPublic = InPublic;
         return bundle;
     }
 
@@ -623,6 +631,9 @@ public partial class PlayerChar : V5Entity
         pc = (PlayerChar)V5Entity.BuildFromBundle(pc, bundle);
         string bgKey = bundle.BackgroundName;
         pc.Background = Cfg.PcBgsDict.ContainsKey(bgKey) ? Cfg.PcBgsDict[bgKey] : Cfg.BgEmpty;
+        pc.Sheltered = bundle.Sheltered;
+        pc.Traveling = bundle.Traveling;
+        pc.InPublic = bundle.InPublic;
         return pc;
     }
 }

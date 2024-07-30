@@ -6,7 +6,7 @@
 [ext_resource type="Script" path="res://scripts/custom_controls/RichTextReadout.cs" id="5_ni8rx"]
 [ext_resource type="Script" path="res://scripts/custom_controls/BtnFormSubmit.cs" id="7_du0m1"]
 
-[node name="uiDevPanel" type="Control" node_paths=PackedStringArray("_toggleDevToolsBtn", "_devToolsContainer", "_devPanelOuter", "_actorSelection", "_dicePoolInput1", "_activeHungerOverride", "_reactingHungerOverride", "_testDiffInput", "_reactorSelection", "_dicePoolInput2", "_rollReadout", "_btnWillRerollWin", "_btnWillRerollRestrain", "_saveStateLabel", "_inputSaveFileName", "_btnSaveTo", "_inputLoadFileName", "_btnLoadFrom", "_btnCashTest1")]
+[node name="uiDevPanel" type="Control" node_paths=PackedStringArray("_toggleDevToolsBtn", "_devToolsContainer", "_devPanelOuter", "_actorSelection", "_dicePoolInput1", "_activeHungerOverride", "_reactingHungerOverride", "_testDiffInput", "_reactorSelection", "_dicePoolInput2", "_rollReadout", "_btnWillRerollWin", "_btnWillRerollRestrain", "_btnCashTest1", "_inputMinutesToAdd", "_btnAddMinutes", "_saveStateLabel", "_inputSaveFileName", "_btnSaveTo", "_inputLoadFileName", "_btnLoadFrom")]
 layout_mode = 3
 anchors_preset = 1
 anchor_left = 1.0
@@ -27,12 +27,14 @@ _dicePoolInput2 = NodePath("PanelContainer/vboxToggle/vboxContentDevTools/tabcon
 _rollReadout = NodePath("PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/lblRtRollReadout")
 _btnWillRerollWin = NodePath("PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxRerollBtns/btnReroll2Win")
 _btnWillRerollRestrain = NodePath("PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Dice Roll Tests/vboxContentMain/hboxRerollBtns/btnReroll2Restrain")
+_btnCashTest1 = NodePath("PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Miscellaneous Tests/vboxContentMain/btnMoCashTest")
+_inputMinutesToAdd = NodePath("PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Miscellaneous Tests/vboxContentMain/hboxClockTest/inputMinutes")
+_btnAddMinutes = NodePath("PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Miscellaneous Tests/vboxContentMain/hboxClockTest/btnAdvanceClock")
 _saveStateLabel = NodePath("PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Save and Load Tests/vboxContentMain/lblCurrentSaveState")
 _inputSaveFileName = NodePath("PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Save and Load Tests/vboxContentMain/hboxSave/inputSaveWhich")
 _btnSaveTo = NodePath("PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Save and Load Tests/vboxContentMain/hboxSave/btnSaveStateTo")
 _inputLoadFileName = NodePath("PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Save and Load Tests/vboxContentMain/hboxLoad/inputLoadWhich")
 _btnLoadFrom = NodePath("PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Save and Load Tests/vboxContentMain/hboxLoad/btnLoadStateFrom")
-_btnCashTest1 = NodePath("PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Save and Load Tests/vboxContentMain/btnMoCashTest")
 
 [node name="PanelContainer" type="PanelContainer" parent="."]
 layout_mode = 1
@@ -63,8 +65,12 @@ horizontal_alignment = 1
 
 [node name="tabcontDpuiMain" type="TabContainer" parent="PanelContainer/vboxToggle/vboxContentDevTools"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 11
+current_tab = 2
+use_hidden_tabs_for_min_size = true
 
 [node name="Dice Roll Tests" type="MarginContainer" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain"]
+visible = false
 layout_mode = 2
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_top = 15
@@ -292,10 +298,25 @@ script = ExtResource("7_du0m1")
 NodeGroups = Array[int]([0])
 formSubmitUiKey = 12
 
-[node name="btnMoCashTest" type="Button" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Save and Load Tests/vboxContentMain"]
+[node name="Miscellaneous Tests" type="MarginContainer" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain"]
+layout_mode = 2
+
+[node name="vboxContentMain" type="VBoxContainer" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Miscellaneous Tests"]
+layout_mode = 2
+
+[node name="btnMoCashTest" type="Button" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Miscellaneous Tests/vboxContentMain"]
 layout_mode = 2
 text = "Get +$100"
 
-[node name="Don\'t Even Ask" type="MarginContainer" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain"]
-visible = false
+[node name="hboxClockTest" type="HBoxContainer" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Miscellaneous Tests/vboxContentMain"]
 layout_mode = 2
+
+[node name="inputMinutes" type="LineEdit" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Miscellaneous Tests/vboxContentMain/hboxClockTest"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 2.5
+text = "20"
+
+[node name="btnAdvanceClock" type="Button" parent="PanelContainer/vboxToggle/vboxContentDevTools/tabcontDpuiMain/Miscellaneous Tests/vboxContentMain/hboxClockTest"]
+layout_mode = 2
+text = "Run Clock"

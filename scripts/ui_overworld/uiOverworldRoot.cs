@@ -8,7 +8,6 @@ public partial class uiOverworldRoot : Control
 	[ExportGroup("Map")]
 	[Export] private Control _mapLocParentNode;
 	[Export] private Label _mapSubheader;
-	[Export] private Button _btnTravel;
 	[Export] private PopupMenu _modalTravelMenu;
 
 	[ExportGroup("")]
@@ -17,17 +16,6 @@ public partial class uiOverworldRoot : Control
 	private Godot.Collections.Array<Node> OwuiControls;
 	private Godot.Collections.Array<Node> OwuiDisplays;
 	private AudioHandler audioplayer;
-
-	public enum TRAVEL_OPTIONS
-	{
-		CANCEL,
-		WALK,
-		RIDESHARE,
-		RIDE_PRESENCE,
-		RIDE_DOMINATE,
-		CELERITY,
-		SORCERY
-	}
 
 	[Signal] public delegate void UiButtonPressEventHandler(Cfg.UI_KEY key, string opt);
 	[Signal] public delegate void PcUpdateEventHandler(Cfg.UI_KEY source, PlayerChar pc);
@@ -160,7 +148,7 @@ public partial class uiOverworldRoot : Control
 			_modalTravelMenu.Position = newModalPos;
 			_modalTravelMenu.Title = $"Travel to {(loc.IsHaven ? "your haven" : loc.ShortDesc)}?";
 			// Checks if you have the cash for a rideshare, TODO: expand later.
-			int rideIndex = _modalTravelMenu.GetItemIndex((int)TRAVEL_OPTIONS.RIDESHARE);
+			int rideIndex = _modalTravelMenu.GetItemIndex((int)Cfg.TRAVEL_OPTIONS.RIDESHARE);
 			_modalTravelMenu.SetItemDisabled(rideIndex, gm.ThePc.Cash < Cfg.RIDE_BASE_COST);
 			//
 			_modalTravelMenu.Visible = true;
@@ -175,33 +163,25 @@ public partial class uiOverworldRoot : Control
 
 	public void OnTravelOptionPicked(long id)
 	{
-		TRAVEL_OPTIONS travelOpt = (TRAVEL_OPTIONS)id;
-		if (travelOpt != TRAVEL_OPTIONS.CANCEL) { TravelToLocation(Destination, travelOpt); }
+		Cfg.TRAVEL_OPTIONS travelOpt = (Cfg.TRAVEL_OPTIONS)id;
+		if (travelOpt != Cfg.TRAVEL_OPTIONS.CANCEL) { TravelToMapLoc(Destination, travelOpt); }
 		else { audioplayer.PlaySound(audioplayer.SoundCancel1); }
 	}
 
-	public void TravelToLocation(MapLoc destination, TRAVEL_OPTIONS travelMode)
+	public void TravelToMapLoc(MapLoc destination, Cfg.TRAVEL_OPTIONS travelMode)
 	{
-		GD.Print($"\n{gm.ThePc} is traveling to {destination.ShortDesc} via {travelMode}...\n");
-		gm.ThePc.CurrentLocation = destination;
+		// TODO: move some of this functionality over to events, when implemented
+		gm.PcTravelEvent(destination, travelMode);
 		switch (travelMode)
 		{
-			case TRAVEL_OPTIONS.RIDESHARE: gm.ThePc.Cash -= Cfg.RIDE_BASE_COST; break;
-			case TRAVEL_OPTIONS.RIDE_PRESENCE:
-				gm.ThePc.Cash -= (int)(Cfg.RIDE_BASE_COST * 0.6); break;
-			case TRAVEL_OPTIONS.RIDE_DOMINATE: break;
-		}
-		gm.SignalPcUpdate(Cfg.UI_KEY.TRAVEL_ENT_UPDATE, gm.ThePc);
-		switch (travelMode)
-		{
-			case TRAVEL_OPTIONS.WALK:
+			case Cfg.TRAVEL_OPTIONS.WALK:
 				audioplayer.PlaySound(audioplayer.SoundTravelWalk); break;
-			case TRAVEL_OPTIONS.RIDESHARE:
-			case TRAVEL_OPTIONS.RIDE_DOMINATE:
-			case TRAVEL_OPTIONS.RIDE_PRESENCE:
+			case Cfg.TRAVEL_OPTIONS.RIDESHARE:
+			case Cfg.TRAVEL_OPTIONS.RIDE_DOMINATE:
+			case Cfg.TRAVEL_OPTIONS.RIDE_PRESENCE:
 				audioplayer.PlaySound(audioplayer.SoundTravelRide);
 				break;
-			case TRAVEL_OPTIONS.CANCEL:
+			case Cfg.TRAVEL_OPTIONS.CANCEL:
 				audioplayer.PlaySound(audioplayer.SoundCancel1); break;
 		}
 	}

@@ -26,13 +26,17 @@ public partial class uiDevPanel : Control
     [Export] private Godot.Button _btnWillRerollWin;
     [Export] private Godot.Button _btnWillRerollRestrain;
 
+    [ExportGroup("Misc. Tests")]
+    [Export] private Button _btnCashTest1;
+    [Export] private LineEdit _inputMinutesToAdd;
+    [Export] private Button _btnAddMinutes;
+
     [ExportGroup("SaveLoadForm")]
     [Export] private Label _saveStateLabel;
     [Export] private LineEdit _inputSaveFileName;
     [Export] private Button _btnSaveTo;
     [Export] private LineEdit _inputLoadFileName;
     [Export] private Button _btnLoadFrom;
-    [Export] private Button _btnCashTest1;
 
     [ExportGroup("")] // Can I only use this to break out once?
 
@@ -56,6 +60,12 @@ public partial class uiDevPanel : Control
     private bool mostRecentSaveSignalWasSave = false;
 
     public bool Initialized { get => _initialized; }
+
+    public enum MISC_TEST_KEY
+    {
+        ADD_CASH,
+        RUN_CLOCK
+    }
 
     public uiDevPanel()
     {
@@ -107,11 +117,8 @@ public partial class uiDevPanel : Control
 
         DpuiDisplays = GetTree().GetNodesInGroup($"{Cfg.GROUP_NAMES.DPUI_DISPLAYS}");
         foreach (Node node in DpuiDisplays) { }
-        _btnCashTest1.Pressed += () => {
-            GD.Print("Mo money, no problems");
-            gm.ThePc.Cash += 100;
-            //gm.SignalPcUpdate(Cfg.UI_KEY.OTHER_GAMEPLAY_ENT_UPDATE, gm.ThePc);
-        };
+        _btnCashTest1.Pressed += () => DpuiMiscTests(MISC_TEST_KEY.ADD_CASH);
+        _btnAddMinutes.Pressed += () => DpuiMiscTests(MISC_TEST_KEY.RUN_CLOCK);
 
         MoveMeToEnd();
         audioplayer = GetNode<AudioHandler>("/root/AudioHandler");
@@ -126,9 +133,7 @@ public partial class uiDevPanel : Control
     }
 
     // Called every frame. 'delta' is the elapsed time since the previous frame.
-    public override void _Process(double delta)
-    {
-    }
+    public override void _Process(double delta) { }
 
     public void MoveMeToEnd()
     {
@@ -308,6 +313,33 @@ public partial class uiDevPanel : Control
                 break;
             default:
                 GD.Print($"Unrecognized button press/form submit; source = {key}");
+                break;
+        }
+    }
+
+    public void DpuiMiscTests(MISC_TEST_KEY whichTest)
+    {
+        switch (whichTest)
+        {
+            case MISC_TEST_KEY.ADD_CASH:
+                GD.Print("Mo money, no problems");
+                gm.ThePc.Cash += 100;
+                //gm.SignalPcUpdate(Cfg.UI_KEY.OTHER_GAMEPLAY_ENT_UPDATE, gm.ThePc);
+                audioplayer.PlaySound(audioplayer.SoundConfirm1);
+                break;
+            case MISC_TEST_KEY.RUN_CLOCK:
+                string inputText = _inputMinutesToAdd.Text;
+                bool parsed = Int32.TryParse(inputText, out int minutesToAdd);
+                if (parsed)
+                {
+                    GD.Print($"Cock Test: Advancing {minutesToAdd} minutes...");
+                    gm.TheClock.Advance(minutesToAdd);
+                }
+                else
+                {
+                    GD.PrintErr($"Clock Test: Could not parse minutes from \"{inputText}\"");
+                }
+                audioplayer.PlaySound(audioplayer.SoundSelect1);
                 break;
         }
     }

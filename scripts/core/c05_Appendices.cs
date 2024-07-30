@@ -299,7 +299,14 @@ public class MapLoc
             return IsHaven ? $"your haven at {desc}" : desc;
         }
     }
+
+    // Proportional position (between 0 and 1) relative to the background art the BtnMapLoc
+    // Control nodes are placed against. UI map position.
     public Vector2 MapPosition { get; set; }
+    // Theoretical position (between 0 and 1) relative to a representative top-down map,
+    // used to calculate travel "distances". Do not need to be accurate.
+    public Vector2 TruePosition { get; set; }
+
     public bool IsHaven { get; set; } = false;
     public bool OverridePosition { get; set; } = false;
 
@@ -307,6 +314,7 @@ public class MapLoc
     {
         LocName = locName; LocId = LocName.ToLower().Replace(' ', '_');
         MapPosition = new(0.1f, 0.1f);
+        TruePosition = new(0.1f, 0.1f);
     }
 
     public MapLoc(string locName, float x, float y)
@@ -320,6 +328,21 @@ public class MapLoc
             );
         }
         MapPosition = new(x, y);
+        TruePosition = new(x, y);
+    }
+
+    public static int GetTravelTimeMinutes(float distance, Cfg.TRAVEL_OPTIONS travelMode)
+    {
+        var travelSpeed = travelMode switch
+        {
+            Cfg.TRAVEL_OPTIONS.RIDESHARE or
+            Cfg.TRAVEL_OPTIONS.RIDE_DOMINATE or
+            Cfg.TRAVEL_OPTIONS.RIDE_PRESENCE => 2.1f,
+            Cfg.TRAVEL_OPTIONS.CELERITY => 1.7f,
+            Cfg.TRAVEL_OPTIONS.SORCERY => 3.2f,
+            _ => 1,
+        };
+        return (int)Math.Round(distance * Cfg.MINUTES_PER_TRAVEL_DIST_OVERWORLD / travelSpeed);
     }
 
     public override string ToString() { return $"{LocName}"; }
@@ -333,19 +356,51 @@ public partial class Cfg
             ["old_cellar"] = new("Old Cellar", 0.2f, 0.4f)
             {
                 IsHaven = true,
-                LocName = "the Old Cellar"
+                LocName = "the Old Cellar",
+                TruePosition = new(0.1f, 0.8f)
             },
-            ["docks"] = new("Docks", 0.75f, 0.45f) { LocName = "the Docks" },
-            ["elysium"] = new("Elysium", 0.23f, 0.22f),
-            ["downtown"] = new("Downtown", 0.37f, 0.51f)
+            ["docks"] = new("Docks", 0.75f, 0.45f)
+            {
+                LocName = "the Docks",
+                TruePosition = new(0.14f, 0.83f)
+            },
+            ["elysium"] = new("Elysium", 0.23f, 0.22f)
+            {
+                TruePosition = new(0.19f, 0.55f)
+            },
+            ["dockside_hood"] = new("Dockside Hood", 0.37f, 0.51f)
+            {
+                LocName = "the Dockside Neighborhood",
+                TruePosition = new(0.11f, 0.82f)
+            },
+            ["downtown"] = new("Downtown", 0.45f, 0.18f)
+            {
+                TruePosition = new(0.7f, 0.32f)
+            }
         };
 
     public readonly static List<MapLoc> StartingUnlockedLocs = new()
     {
         LocationsDict["old_cellar"],
         LocationsDict["docks"],
+        // LocationsDict["dockside"],
+        // NOTE: The above bad reference caused not just error but a silent failure, why?
+        LocationsDict["dockside_hood"],
         LocationsDict["downtown"]
     };
 
+    public enum TRAVEL_OPTIONS
+    {
+        CANCEL,
+        WALK,
+        RIDESHARE,
+        RIDE_PRESENCE,
+        RIDE_DOMINATE,
+        CELERITY,
+        SORCERY
+    }
+
+    // How many minutes would it take to walk from one end of the city to the other, roughly?
+    public const float MINUTES_PER_TRAVEL_DIST_OVERWORLD = 360.0f;
     public const int RIDE_BASE_COST = 30;
 }

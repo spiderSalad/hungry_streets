@@ -29,6 +29,8 @@ public partial class GameManager : Node
     public Node CurrentScene { get; private set; }
     public GameState PreviousState { get; private set; }
     public GameState PresentState { get; private set; }
+    public GameClock TheClock { get; private set; }
+
     public uiDevPanel DevPanel
     {
         get => _devPanel;
@@ -136,9 +138,40 @@ public partial class GameManager : Node
         // CurrentScene is last child of root at this point because this (GameManager) is an
         // auto-loaded node and they come first (presumably that means this _Ready() fires
         // before other nodes are added to root? Unsure.)
+        TheClock ??= new(GameClock.STANDARD_HOURS_PER_NIGHT); // Should this be added to tree?
         GD.Print("Game manager ready.");
         //TempCheckForGameStates();
         LoadGame(Cfg.FILENAME_RECENT_TEMP, true); // Auto-attempt an auto-load.
+    }
+
+    public void PcTravelEvent(MapLoc dest, Cfg.TRAVEL_OPTIONS travelMode)
+    {
+        // TODO: Move to game event handling, when implemented
+        ThePc.Traveling = true;
+        Vector2 start = ThePc.CurrentLocation.TruePosition,
+            end = dest.TruePosition;
+        float distance = start.DistanceTo(end);
+        switch (travelMode)
+		{
+			case Cfg.TRAVEL_OPTIONS.RIDESHARE: ThePc.Cash -= Cfg.RIDE_BASE_COST; break;
+			case Cfg.TRAVEL_OPTIONS.RIDE_PRESENCE:
+				ThePc.Cash -= (int)(Cfg.RIDE_BASE_COST * 0.6); break;
+			case Cfg.TRAVEL_OPTIONS.RIDE_DOMINATE: break;
+		}
+		SignalPcUpdate(Cfg.UI_KEY.TRAVEL_ENT_UPDATE, ThePc);
+        int minutesTraveled = MapLoc.GetTravelTimeMinutes(distance, travelMode);
+        GD.Print(
+            $"\n{ThePc} is traveling {distance} units from '{ThePc.CurrentLocation.ShortDesc}' " +
+            $"at ({start.X}, {start.Y}) to '{dest.ShortDesc}' at ({end.X}, {end.Y}) " +
+            $"via {travelMode}, which will take about {minutesTraveled} minutes...\n"
+        );
+        ThePc.CurrentLocation = dest;
+        TheClock.Advance(minutesTraveled);
+        // TODO: Implement events, eventhandler
+        bool successfulJourney = true;
+        ThePc.Sheltered = successfulJourney && dest.IsHaven;
+        ThePc.InPublic = true;
+        ThePc.Traveling = false;
     }
 
     public Godot.Error LoadGame(string path, bool autoLoad = false, bool createFallbackState = true)
@@ -188,6 +221,8 @@ public partial class GameManager : Node
         PresentState.OnLoad(pathUsed);
         ThePc = PlayerChar.BuildFromBundle(new PlayerChar(), PresentState.PcDataBundle);
         ThePc.CurrentLocation = Cfg.LocationsDict[PresentState.CurrentLoc];
+        TheClock.SetNight(PresentState.Night);
+        TheClock.SetMinutes(PresentState.MinutesRemaining);
 
         foreach (MapLoc loc in Cfg.StartingUnlockedLocs)
         {
@@ -229,6 +264,9 @@ public partial class GameManager : Node
         PresentState ??= new();
         PresentState.PcDataBundle = ThePc.Bundle();
         PresentState.CurrentLoc = ThePc.CurrentLocation.LocId;
+        PresentState.Night = TheClock.Night;
+        PresentState.MinutesRemaining = TheClock.MinutesRemaining;
+        PresentState.ClockDaybreak = TheClock.DayBreak;
     }
 
     public void GoToScene(string path)

@@ -13,6 +13,10 @@ public partial class GameState : Godot.Resource
     [Export] public int TimesLoaded { get; set; }
     [Export] public int TimesWrittenTo { get; set; }
 
+    [Export] public int Night { get; set; } = 1;
+    [Export] public int MinutesRemaining { get; set; } = 60;
+    [Export] public int ClockDaybreak { get; set; }
+
     [Export] public int TestField1 { get; set; }
     [Export] public string TestField2 { get; set; }
 

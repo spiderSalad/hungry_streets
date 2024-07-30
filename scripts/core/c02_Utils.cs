@@ -23,6 +23,12 @@ public static partial class Utils
         return $"{input}";
     }
 
+    public static string YesNo(bool yes, bool capitalize = true)
+    {
+        string token = yes ? "yes" : "no";
+        return capitalize ? token.Capitalize() : token;
+    }
+
     public static string GenerateRandomAlphanumeric(int length)
     {
         var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -41,7 +47,8 @@ public static partial class Utils
     {
         // GD.Print($"Find Nth: called looking for occurrence #{n} of '{substr}' in '{input}'");
 
-        if (n < 1) {
+        if (n < 1)
+        {
             throw new ArgumentOutOfRangeException($"Utils.FindNthOccurrence(): n = {n}, but must be 1 or more.");
         }
 
@@ -49,18 +56,21 @@ public static partial class Utils
         do
         {
             foundIndex = input.IndexOf(substr, placeholder);
-            if (foundIndex < 0) {
+            if (foundIndex < 0)
+            {
                 break;
             }
             occurrencesFound++;
             placeholder = foundIndex + 1;
         } while (occurrencesFound < n && foundIndex + 1 < input.Length);
 
-        if (occurrencesFound == n) {
+        if (occurrencesFound == n)
+        {
             GD.Print($"Find Nth: found {n}th occurrence at index {foundIndex}");
             return foundIndex;
         }
-        if (occurrencesFound > n && n > 0) {
+        if (occurrencesFound > n && n > 0)
+        {
             throw new Exception(
                 $"Utils.FindNthOccurrence(): found {occurrencesFound} occurrences, but only {n} were asked for! This shouldn't happen."
             );
