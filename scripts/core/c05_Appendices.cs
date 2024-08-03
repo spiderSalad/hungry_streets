@@ -345,6 +345,21 @@ public class MapLoc
         return (int)Math.Round(distance * Cfg.MINUTES_PER_TRAVEL_DIST_OVERWORLD / travelSpeed);
     }
 
+    public static string GetTravelModeText(Cfg.TRAVEL_OPTIONS travelMode)
+    {
+        switch (travelMode)
+        {
+            case Cfg.TRAVEL_OPTIONS.CANCEL: return "Never mind";
+            case Cfg.TRAVEL_OPTIONS.WALK: return "Walk";
+            case Cfg.TRAVEL_OPTIONS.RIDESHARE: return "Get a ride";
+            case Cfg.TRAVEL_OPTIONS.RIDE_PRESENCE: return "\"Persuade\" a driver";
+            case Cfg.TRAVEL_OPTIONS.RIDE_DOMINATE: return "Mentally compel a driver";
+            case Cfg.TRAVEL_OPTIONS.CELERITY: return "Run with supernatural alacrity";
+            case Cfg.TRAVEL_OPTIONS.SORCERY: return "Conduct a ritual";
+            default: return "...Find some other way?";
+        }
+    }
+
     public override string ToString() { return $"{LocName}"; }
 }
 
@@ -353,7 +368,7 @@ public partial class Cfg
     public readonly static System.Collections.Generic.Dictionary<string, MapLoc> LocationsDict =
         new()
         {
-            ["old_cellar"] = new("Old Cellar", 0.2f, 0.4f)
+            ["old_cellar"] = new("Old Cellar", 0.17f, 0.35f)
             {
                 IsHaven = true,
                 LocName = "the Old Cellar",

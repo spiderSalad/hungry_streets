@@ -68,15 +68,35 @@ public partial class GameClock : Node
 		return $"Night {night}, {timeStamp.Item1:D2}:{timeStamp.Item2:D2}";
 	}
 
+	public static string GetTimeEstimate(int minutes)
+	{
+		if (minutes == 1) { return "1 minute"; }
+		else if (minutes < MINUTES_PER_HOUR) { return $"{minutes} minutes"; }
+		else
+		{
+			int hours = (int)Math.Floor((decimal)minutes / MINUTES_PER_HOUR);
+			return hours != 1 ? $"{hours} hours" : "1 hour";
+		}
+	}
+
 	public static string GetClockCountdown(int minutes)
 	{
-		if (minutes < 20) { return "Sunrise imminent"; }
-		else if (minutes < MINUTES_PER_HOUR) { return $"{minutes} till sunrise"; }
+		if (minutes < 20)
+		{
+			return "Sunrise imminent";
+		}
+		else if (minutes < MINUTES_PER_HOUR)
+		{
+			return "Less than an hour before sunrise";
+		}
 		else if (minutes < MINUTES_PER_HOUR * (STANDARD_HOURS_PER_NIGHT - 2))
 		{
-			return $"{(int)Math.Floor((decimal)minutes / MINUTES_PER_HOUR)} hours till sunrise";
+			return $"{GetTimeEstimate(minutes)} till sunrise";
 		}
-		else { return "The night is young"; }
+		else
+		{
+			return "The night is young";
+		}
 	}
 
 	public string GetClockOutput()
@@ -96,8 +116,8 @@ public partial class GameClock : Node
 			displayMinutes = maxMinutes - Math.Abs(minsPastMidnight);
 		}
 
-		return $"{GetClockTimeStamp(Night, displayMinutes)} " +
-			$"({GetClockCountdown(MinutesRemaining)})";
+		return $"{GetClockTimeStamp(Night, displayMinutes)}. " +
+			$"{GetClockCountdown(MinutesRemaining)}.";
 	}
 
 	public override string ToString()

@@ -150,7 +150,23 @@ public partial class uiOverworldRoot : Control
 			// Checks if you have the cash for a rideshare, TODO: expand later.
 			int rideIndex = _modalTravelMenu.GetItemIndex((int)Cfg.TRAVEL_OPTIONS.RIDESHARE);
 			_modalTravelMenu.SetItemDisabled(rideIndex, gm.ThePc.Cash < Cfg.RIDE_BASE_COST);
-			//
+			for (int i = 0; i < _modalTravelMenu.ItemCount; i++)
+			{
+				int id = _modalTravelMenu.GetItemId(i);
+				if (id != (int)Cfg.TRAVEL_OPTIONS.CANCEL)
+				{
+					Vector2 start = gm.ThePc.CurrentLocation.TruePosition,
+						end = Destination.TruePosition;
+					float distance = start.DistanceTo(end);
+					int etaMinutes = MapLoc.GetTravelTimeMinutes(distance, (Cfg.TRAVEL_OPTIONS)id);
+					string etaText = GameClock.GetTimeEstimate(etaMinutes);
+					string itemText =
+						$"{MapLoc.GetTravelModeText((Cfg.TRAVEL_OPTIONS)id)} (about {etaText}";
+					itemText += etaMinutes >= gm.TheClock.MinutesRemaining ? "!)" : ")";
+					_modalTravelMenu.SetItemText(i, itemText); // no BBCode :(
+
+				}
+			}
 			_modalTravelMenu.Visible = true;
 			audioplayer.PlaySound(audioplayer.SoundSelect1);
 		}
